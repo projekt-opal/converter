@@ -68,3 +68,9 @@ secrets.yml
 /.mvn/wrapper/MavenWrapperDownloader.java
 /discovery-server/.mvn/wrapper/maven-wrapper.properties
 /discovery-server/.mvn/wrapper/MavenWrapperDownloader.java
+/dataset-url-fetcher/mvnw
+/dataset-url-fetcher/mvnw.cmd
+/dataset-url-fetcher/.mvn/
+/common/.mvn/
+/common/mvnw
+/common/mvnw.cmd
