@@ -4,7 +4,6 @@ import org.diceresearch.dataseturlfetcher.model.Portal;
 import org.diceresearch.dataseturlfetcher.repository.PortalRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -12,13 +11,13 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
-public class DataSetFetcherPool {
+public class DataSetUrlFetcherPool {
     private final ApplicationContext context;
-    private Map<String, DataSetFetcher> fetcherMap = new ConcurrentHashMap<>();
+    private Map<String, DataSetUrlFetcher> fetcherMap = new ConcurrentHashMap<>();
     private PortalRepository portalRepository;
 
     @Autowired
-    public DataSetFetcherPool(ApplicationContext context, PortalRepository portalRepository) {
+    public DataSetUrlFetcherPool(ApplicationContext context, PortalRepository portalRepository) {
         this.context = context;
         this.portalRepository = portalRepository;
     }
@@ -33,15 +32,11 @@ public class DataSetFetcherPool {
         }
     }
 
-    @Autowired
-    private Environment environment;
-
-    public DataSetFetcher getFetcher(String portalName) {
+    public DataSetUrlFetcher getFetcher(String portalName) {
         if (!fetcherMap.containsKey(portalName)) {
-            System.out.println(environment.getProperty("info.crawler.tripleStore.url"));
-            DataSetFetcher dataSetFetcher = context.getBean(DataSetFetcher.class);
-            dataSetFetcher.setPortalName(portalName);
-            fetcherMap.put(portalName, dataSetFetcher);
+            DataSetUrlFetcher dataSetUrlFetcher = context.getBean(DataSetUrlFetcher.class);
+            dataSetUrlFetcher.setPortalName(portalName);
+            fetcherMap.put(portalName, dataSetUrlFetcher);
         }
         return fetcherMap.get(portalName);
     }
