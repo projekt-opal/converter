@@ -1,14 +1,14 @@
+
 spring:
   application:
-    name: dataset-url-fetcher
+    name: dataset-graph-fetcher
   cloud:
     stream:
       bindings:
-        output:
+        input:
           destination: dataset-url
-
-server:
-  port: ${PORT:8001}
+        output:
+          destination: dataset-graph
 
 eureka:
   client:
@@ -23,3 +23,9 @@ info:
       url: ${CRAWLER_TRIPLESTORE_URL}/%s/query
       username: ${CRAWLER_TRIPLESTORE_USERNAME}
       password: ${CRAWLER_TRIPLESTORE_PASSWORD}
+
+logging:
+  level:
+    org:
+      apache:
+        jena: error

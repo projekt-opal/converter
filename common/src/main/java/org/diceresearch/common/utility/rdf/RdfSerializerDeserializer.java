@@ -1,4 +1,4 @@
-package org.diceresearch.common.rdf.utility;
+package org.diceresearch.common.utility.rdf;
 
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
@@ -6,7 +6,7 @@ import org.apache.jena.rdf.model.ModelFactory;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
-public abstract class RdfSerializerDeseralizer {
+public abstract class RdfSerializerDeserializer {
     public static byte[] serialize(Model model) {
         ByteArrayOutputStream outStream = new ByteArrayOutputStream();
         model.write(outStream, "TURTLE");

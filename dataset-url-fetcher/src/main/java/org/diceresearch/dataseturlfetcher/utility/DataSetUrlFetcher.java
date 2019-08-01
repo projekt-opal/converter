@@ -15,7 +15,7 @@ import org.apache.jena.query.ResultSet;
 import org.apache.jena.rdf.model.*;
 import org.diceresearch.dataseturlfetcher.model.Portal;
 import org.diceresearch.dataseturlfetcher.repository.PortalRepository;
-import org.diceresearch.dataseturlfetcher.utility.broker.ResourceSender;
+import org.diceresearch.dataseturlfetcher.messaging.ResourceSender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,11 +30,9 @@ import java.util.List;
 @Component
 @Scope("prototype")
 @EnableRetry
-public class DataSetFetcher implements CredentialsProvider, Runnable {
-    private static final Logger logger = LoggerFactory.getLogger(DataSetFetcher.class);
+public class DataSetUrlFetcher implements CredentialsProvider, Runnable {
+    private static final Logger logger = LoggerFactory.getLogger(DataSetUrlFetcher.class);
 
-    private static final Property opalTemporalCatalogProperty =
-            ResourceFactory.createProperty("http://projekt-opal.de/catalog");
     private org.aksw.jena_sparql_api.core.QueryExecutionFactory qef;
     private boolean isCanceled;
 
@@ -60,7 +58,7 @@ public class DataSetFetcher implements CredentialsProvider, Runnable {
     private String portalName;
 
     @Autowired
-    public DataSetFetcher(PortalRepository portalRepository, ResourceSender resourceSender) {
+    public DataSetUrlFetcher(PortalRepository portalRepository, ResourceSender resourceSender) {
         this.portalRepository = portalRepository;
         this.resourceSender = resourceSender;
     }
@@ -99,7 +97,7 @@ public class DataSetFetcher implements CredentialsProvider, Runnable {
                 List<Resource> listOfDataSets = getListOfDataSets(idx, min);
                 listOfDataSets
 //                        .subList(1,2) //only for debug
-                        .parallelStream().forEach(resourceSender::send); // TODO: 31.07.19 Enqueue
+                        .parallelStream().forEach(resource -> resourceSender.send(resource, portal)); // TODO: 31.07.19 Enqueue
             }
             portal.setLastNotFetched(high);
             portalRepository.save(portal);
@@ -198,7 +196,7 @@ public class DataSetFetcher implements CredentialsProvider, Runnable {
         return cnt;
     }
 
-    public DataSetFetcher setPortalName(String portalName) {
+    public DataSetUrlFetcher setPortalName(String portalName) {
         this.portalName = portalName;
         return this;
     }

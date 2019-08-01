@@ -2,8 +2,8 @@ package org.diceresearch.dataseturlfetcher.web;
 
 import org.diceresearch.dataseturlfetcher.model.Portal;
 import org.diceresearch.dataseturlfetcher.repository.PortalRepository;
-import org.diceresearch.dataseturlfetcher.utility.DataSetFetcher;
-import org.diceresearch.dataseturlfetcher.utility.DataSetFetcherPool;
+import org.diceresearch.dataseturlfetcher.utility.DataSetUrlFetcher;
+import org.diceresearch.dataseturlfetcher.utility.DataSetUrlFetcherPool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,12 +14,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class IndexController {
 
     private final PortalRepository portalRepository;
-    private final DataSetFetcherPool dataSetFetcherPool;
+    private final DataSetUrlFetcherPool dataSetUrlFetcherPool;
 
     @Autowired
-    public IndexController(PortalRepository portalRepository, DataSetFetcherPool dataSetFetcherPool) {
+    public IndexController(PortalRepository portalRepository, DataSetUrlFetcherPool dataSetUrlFetcherPool) {
         this.portalRepository = portalRepository;
-        this.dataSetFetcherPool = dataSetFetcherPool;
+        this.dataSetUrlFetcherPool = dataSetUrlFetcherPool;
     }
 
     @GetMapping("/")
@@ -36,7 +36,7 @@ public class IndexController {
             @RequestParam(name = "high", defaultValue = "-1") String high) {
 
         if (portalName != null && !portalName.isEmpty()) {
-            DataSetFetcher fetcher = dataSetFetcherPool.getFetcher(portalName);
+            DataSetUrlFetcher fetcher = dataSetUrlFetcherPool.getFetcher(portalName);
             fetcher.setCanceled(false);
             int x = Integer.parseInt(lnf);
             int y = Integer.parseInt(high);
@@ -53,7 +53,7 @@ public class IndexController {
     @GetMapping("/cancel")
     public String convert(@RequestParam(name = "portalName", required = false) String portalName) {
         if (portalName != null && !portalName.isEmpty()) {
-            DataSetFetcher fetcher = dataSetFetcherPool.getFetcher(portalName);
+            DataSetUrlFetcher fetcher = dataSetUrlFetcherPool.getFetcher(portalName);
             fetcher.setCanceled(true);
         }
         return "redirect:/";

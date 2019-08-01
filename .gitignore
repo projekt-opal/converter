@@ -74,3 +74,6 @@ secrets.yml
 /common/.mvn/
 /common/mvnw
 /common/mvnw.cmd
+/dataset-graph-fetcher/mvnw
+/dataset-graph-fetcher/mvnw.cmd
+/dataset-graph-fetcher/.mvn/
