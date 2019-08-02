@@ -80,3 +80,6 @@ secrets.yml
 /opal-confirm-conversion-service/mvnw
 /opal-confirm-conversion-service/mvnw.cmd
 /opal-confirm-conversion-service/.mvn/
+/quality-metrics-service/mvnw.cmd
+/quality-metrics-service/mvnw
+/quality-metrics-service/.mvn/

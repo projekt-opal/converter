@@ -39,6 +39,7 @@
 		<module>dataset-url-fetcher</module>
 		<module>dataset-graph-fetcher</module>
 		<module>opal-confirm-conversion-service</module>
+		<module>quality-metrics-service</module>
 	</modules>
 
 </project>
