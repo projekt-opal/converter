@@ -38,6 +38,7 @@
 		<module>discovery-server</module>
 		<module>dataset-url-fetcher</module>
 		<module>dataset-graph-fetcher</module>
+		<module>opal-confirm-conversion-service</module>
 	</modules>
 
 </project>

@@ -77,3 +77,6 @@ secrets.yml
 /dataset-graph-fetcher/mvnw
 /dataset-graph-fetcher/mvnw.cmd
 /dataset-graph-fetcher/.mvn/
+/opal-confirm-conversion-service/mvnw
+/opal-confirm-conversion-service/mvnw.cmd
+/opal-confirm-conversion-service/.mvn/
