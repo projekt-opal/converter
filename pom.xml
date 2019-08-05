@@ -40,6 +40,7 @@
 		<module>dataset-graph-fetcher</module>
 		<module>opal-confirm-conversion-service</module>
 		<module>quality-metrics-service</module>
+		<module>triplestore-writer</module>
 	</modules>
 
 </project>
