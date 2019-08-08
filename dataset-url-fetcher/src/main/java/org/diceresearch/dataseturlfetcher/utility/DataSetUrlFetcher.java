@@ -27,6 +27,9 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
+import static net.logstash.logback.argument.StructuredArguments.kv;
+import static net.logstash.logback.argument.StructuredArguments.v;
+
 @Component
 @Scope("prototype")
 @EnableRetry
@@ -65,11 +68,11 @@ public class DataSetUrlFetcher implements CredentialsProvider, Runnable {
 
     public void run() {
         try {
-            logger.info("Starting fetching portal {}", portalName);
+            logger.info("Start fetching {}", kv("portalName",portalName));
             initialQueryExecutionFactory(portalName);
 
             int totalNumberOfDataSets = getTotalNumberOfDataSets();
-            logger.debug("Total number of datasets is {}", totalNumberOfDataSets);
+            logger.debug("Total number of datasets is {}", kv("Total #Datasets",totalNumberOfDataSets));
             if (totalNumberOfDataSets == -1) {
                 throw new Exception("Cannot Query the TripleStore");
             }

@@ -23,3 +23,7 @@ info:
       url: ${CRAWLER_TRIPLESTORE_URL}/%s/query
       username: ${CRAWLER_TRIPLESTORE_USERNAME}
       password: ${CRAWLER_TRIPLESTORE_PASSWORD}
+
+#logging:
+#  level:
+#    org.springframework.cloud.sleuth.log: TRACE
