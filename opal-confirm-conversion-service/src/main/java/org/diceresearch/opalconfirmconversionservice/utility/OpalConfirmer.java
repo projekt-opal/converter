@@ -13,25 +13,28 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
+import static net.logstash.logback.argument.StructuredArguments.kv;
+
 @Component
 public class OpalConfirmer {
 
     private static final Logger logger = LoggerFactory.getLogger(OpalConfirmer.class);
-    static final Property opalTemporalCatalogProperty =
+    private static final Property opalTemporalCatalogProperty =
             ResourceFactory.createProperty("http://projekt-opal.de/catalog");
 
     public byte[] convert(byte[] bytes) {
+        Model model;
         try {
-
-            Model model = RdfSerializerDeserializer.deserialize(bytes);
-            if (model == null) {
-                logger.info("Given model is null");
-                return bytes;
-            }
-
+            model = RdfSerializerDeserializer.deserialize(bytes);
+        } catch (Exception e) {
+            logger.error("Exception in deserialize the byte code ", e);
+            return bytes;
+        }
+        try {
             ResIterator resIterator = model.listResourcesWithProperty(RDF.type, DCAT.Dataset);
             if (resIterator.hasNext()) {
                 Resource dataSet = resIterator.nextResource();
+                logger.info("{}", kv("datasetUrl", dataSet.getURI()));
                 // After the dataset URI is changed to Opal format, new URI to be passed for distribution
                 dataSet = makeOpalConfirmedUri(model, dataSet, DCAT.Dataset, null, "dataset");
                 makeOpalConfirmedUri(model, dataSet, DCAT.Distribution, DCAT.distribution, "distribution");
@@ -43,12 +46,12 @@ public class OpalConfirmer {
                         ResourceFactory.createProperty("http://www.w3.org/ns/dcat#catalog"), (RDFNode) null);
                 model.remove(stmtIterator);
 
-
                 return RdfSerializerDeserializer.serialize(model);
+            } else {
+                logger.info("The given model doesn't have DCAT:Dataset");
             }
-
         } catch (Exception e) {
-            logger.error("An error occurred in converting th model ", e);
+            logger.error("Exception in converting th model", e);
         }
 
         return bytes;

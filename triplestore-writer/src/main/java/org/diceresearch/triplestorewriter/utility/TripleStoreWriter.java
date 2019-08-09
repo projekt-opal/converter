@@ -7,13 +7,13 @@ import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.jena.query.ParameterizedSparqlString;
 import org.apache.jena.query.QuerySolutionMap;
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.Statement;
-import org.apache.jena.rdf.model.StmtIterator;
+import org.apache.jena.rdf.model.*;
 import org.apache.jena.update.UpdateExecutionFactory;
 import org.apache.jena.update.UpdateFactory;
 import org.apache.jena.update.UpdateProcessor;
 import org.apache.jena.update.UpdateRequest;
+import org.apache.jena.vocabulary.DCAT;
+import org.apache.jena.vocabulary.RDF;
 import org.diceresearch.common.utility.rdf.RdfSerializerDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +24,8 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.nio.charset.StandardCharsets;
+
+import static net.logstash.logback.argument.StructuredArguments.kv;
 
 @Component
 public class TripleStoreWriter implements CredentialsProvider {
@@ -55,6 +57,14 @@ public class TripleStoreWriter implements CredentialsProvider {
 
     private void writeModel(byte[] bytes) {
         Model model = RdfSerializerDeserializer.deserialize(bytes);
+        try {
+            ResIterator resIterator = model.listResourcesWithProperty(RDF.type, DCAT.Dataset);
+            if (resIterator.hasNext()) {
+                Resource dataSet = resIterator.nextResource();
+                logger.info("{}", kv("datasetUrl", dataSet.getURI()));
+            }
+        } catch (Exception ignored) {
+        }
         StmtIterator stmtIterator = model.listStatements();
         QuerySolutionMap mp = new QuerySolutionMap();
         int cnt = 0;

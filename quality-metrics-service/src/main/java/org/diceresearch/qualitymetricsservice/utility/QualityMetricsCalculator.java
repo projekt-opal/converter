@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
+import static net.logstash.logback.argument.StructuredArguments.kv;
+
 @Component
 public class QualityMetricsCalculator {
 
@@ -29,6 +31,7 @@ public class QualityMetricsCalculator {
             ResIterator resIterator = model.listResourcesWithProperty(RDF.type, DCAT.Dataset);
             if (resIterator.hasNext()) {
                 Resource dataSet = resIterator.nextResource();
+                logger.info("{}", kv("datasetUrl", dataSet.getURI()));
                 CivetApi civetApi = new CivetApi();
                 model = civetApi.computeFuture(model).get();
                 makeOpalConfirmedQualityMeasurements(model, dataSet);
