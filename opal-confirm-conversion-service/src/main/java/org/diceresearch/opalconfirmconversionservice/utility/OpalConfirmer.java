@@ -1,5 +1,6 @@
 package org.diceresearch.opalconfirmconversionservice.utility;
 
+import org.aksw.jena_sparql_api.mapper.annotation.RdfType;
 import org.apache.jena.rdf.model.*;
 import org.apache.jena.rdf.model.impl.SelectorImpl;
 import org.apache.jena.rdf.model.impl.StatementImpl;
@@ -40,7 +41,7 @@ public class OpalConfirmer {
                 makeOpalConfirmedUri(model, dataSet, DCAT.Distribution, DCAT.distribution, "distribution");
                 ResIterator opalConfirmedIterator = model.listResourcesWithProperty(RDF.type, DCAT.Dataset);
                 Resource dataSetOpalConfirmed = opalConfirmedIterator.nextResource();// TODO: 07.12.18 Check for Exception (".nextResource()")
-                addDatasetToCatalog(dataSetOpalConfirmed, model);
+                updateDatasetInGraph(dataSet, dataSetOpalConfirmed, model);
                 //removing duplicate catalog info (if it is there)
                 StmtIterator stmtIterator = model.listStatements(dataSetOpalConfirmed,
                         ResourceFactory.createProperty("http://www.w3.org/ns/dcat#catalog"), (RDFNode) null);
@@ -57,15 +58,12 @@ public class OpalConfirmer {
         return bytes;
     }
 
-    private void addDatasetToCatalog(Resource dataSet, Model model) {
-        StmtIterator iterator = model.listStatements(
-                new SimpleSelector(dataSet, opalTemporalCatalogProperty, (RDFNode) null));
+    private void updateDatasetInGraph(Resource dataSet, Resource dataSetOpalConfirmed, Model model) {
+        ResIterator iterator = model.listSubjectsWithProperty(RDF.type, DCAT.Catalog);
         if (iterator.hasNext()) {
-            Statement statement = iterator.nextStatement();
-            Resource portal = statement.getObject().asResource();
-            model.remove(dataSet, opalTemporalCatalogProperty, portal);
-            model.add(portal, RDF.type, DCAT.Catalog);
-            model.add(portal, DCAT.dataset, dataSet);
+            Resource portal = iterator.nextResource();
+            model.remove(portal, DCAT.dataset, dataSet);
+            model.add(portal, DCAT.dataset, dataSetOpalConfirmed);
         }
     }
 

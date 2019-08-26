@@ -1,11 +1,6 @@
 spring:
   application:
     name: dataset-url-fetcher
-  cloud:
-    stream:
-      bindings:
-        output:
-          destination: dataset-url
 
 server:
   port: ${PORT:8001}
@@ -23,7 +18,3 @@ info:
       url: ${CRAWLER_TRIPLESTORE_URL}/%s/query
       username: ${CRAWLER_TRIPLESTORE_USERNAME}
       password: ${CRAWLER_TRIPLESTORE_PASSWORD}
-
-#logging:
-#  level:
-#    org.springframework.cloud.sleuth.log: TRACE

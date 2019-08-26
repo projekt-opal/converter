@@ -12,10 +12,16 @@ import org.apache.jena.query.ParameterizedSparqlString;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSet;
-import org.apache.jena.rdf.model.*;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.RDFNode;
+import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.rdf.model.ResourceFactory;
+import org.apache.jena.vocabulary.DCAT;
+import org.apache.jena.vocabulary.RDF;
+import org.diceresearch.common.utility.rdf.RdfSerializerDeserializer;
+import org.diceresearch.dataseturlfetcher.messaging.SourceWithDynamicDestination;
 import org.diceresearch.dataseturlfetcher.model.Portal;
 import org.diceresearch.dataseturlfetcher.repository.PortalRepository;
-import org.diceresearch.dataseturlfetcher.messaging.ResourceSender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +34,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static net.logstash.logback.argument.StructuredArguments.kv;
-import static net.logstash.logback.argument.StructuredArguments.v;
 
 @Component
 @Scope("prototype")
@@ -57,22 +62,24 @@ public class DataSetUrlFetcher implements CredentialsProvider, Runnable {
 
 
     private final PortalRepository portalRepository;
-    private final ResourceSender resourceSender;
+    private final SourceWithDynamicDestination sourceWithDynamicDestination;
+
     private String portalName;
+    private Resource portalResource;
 
     @Autowired
-    public DataSetUrlFetcher(PortalRepository portalRepository, ResourceSender resourceSender) {
+    public DataSetUrlFetcher(PortalRepository portalRepository, SourceWithDynamicDestination sourceWithDynamicDestination) {
         this.portalRepository = portalRepository;
-        this.resourceSender = resourceSender;
+        this.sourceWithDynamicDestination = sourceWithDynamicDestination;
     }
 
     public void run() {
         try {
-            logger.info("Start fetching {}", kv("portalName",portalName));
+            logger.info("Start fetching {}", kv("portalName", portalName));
             initialQueryExecutionFactory(portalName);
 
             int totalNumberOfDataSets = getTotalNumberOfDataSets();
-            logger.debug("Total number of datasets is {}", kv("Total #Datasets",totalNumberOfDataSets));
+            logger.debug("Total number of datasets is {}", kv("Total #Datasets", totalNumberOfDataSets));
             if (totalNumberOfDataSets == -1) {
                 throw new Exception("Cannot Query the TripleStore");
             }
@@ -100,7 +107,11 @@ public class DataSetUrlFetcher implements CredentialsProvider, Runnable {
                 List<Resource> listOfDataSets = getListOfDataSets(idx, min);
                 listOfDataSets
 //                        .subList(1,2) //only for debug
-                        .parallelStream().forEach(resource -> resourceSender.send(resource, portal)); // TODO: 31.07.19 Enqueue
+                        .parallelStream().forEach(resource -> {
+                    Model graph = getGraph(resource);
+                    byte[] serialize = RdfSerializerDeserializer.serialize(graph);
+                    sourceWithDynamicDestination.sendMessage(serialize, "dataset-graph");
+                });
             }
             portal.setLastNotFetched(high);
             portalRepository.save(portal);
@@ -112,8 +123,50 @@ public class DataSetUrlFetcher implements CredentialsProvider, Runnable {
         }
     }
 
+    private Model getGraph(Resource resource) {
+        Model dataSetGraph = getAllPredicatesObjectsPublisherDistributions(resource);
+        dataSetGraph.add(portalResource, RDF.type, DCAT.Catalog);
+        dataSetGraph.add(portalResource, DCAT.dataset, resource);
+        return dataSetGraph;
+    }
+
+    private Model getAllPredicatesObjectsPublisherDistributions(Resource dataSet) {
+
+        Model model;
+
+        ParameterizedSparqlString pss = new ParameterizedSparqlString("" +
+                "CONSTRUCT { " + "?dataSet ?predicate ?object .\n" +
+                "\t?object ?p2 ?o2}\n" +
+                "WHERE { \n" +
+                "  GRAPH ?g {\n" +
+                "    ?dataSet ?predicate ?object.\n" +
+                "    OPTIONAL { ?object ?p2 ?o2 }\n" +
+                "  }\n" +
+                "}");
+
+        pss.setNsPrefixes(PREFIXES);
+        pss.setParam("dataSet", dataSet);
+
+        model = executeConstruct(pss);
+
+        return model;
+    }
+
+
+    private Model executeConstruct(ParameterizedSparqlString pss) {
+        Model model = null;
+        try (QueryExecution queryExecution = qef.createQueryExecution(pss.asQuery())) {
+            model = queryExecution.execConstruct();
+        } catch (Exception ex) {
+            logger.error("Exception in executing construct ", ex);
+        }
+        return model;
+    }
+
     private void initialQueryExecutionFactory(String portal) {
         credentials = new UsernamePasswordCredentials(tripleStoreUsername, tripleStorePassword);
+
+        portalResource = ResourceFactory.createResource("http://projekt-opal.de/catalog/" + portalName);
 
         HttpClientBuilder clientBuilder = HttpClientBuilder.create();
         clientBuilder.setDefaultCredentialsProvider(this);
@@ -179,7 +232,7 @@ public class DataSetUrlFetcher implements CredentialsProvider, Runnable {
                 logger.trace("getResource: {}", dataSet);
             }
         } catch (Exception ex) {
-            logger.error("An error occurred in getting resources ", ex);
+            logger.error("Exception in getting resources ", ex);
         }
         return ret;
     }
@@ -194,12 +247,12 @@ public class DataSetUrlFetcher implements CredentialsProvider, Runnable {
                 cnt = num.asLiteral().getInt();
             }
         } catch (Exception ex) {
-            logger.error("An error occurred in getting Count, {}", ex);
+            logger.error("Exception in getting Count ", ex);
         }
         return cnt;
     }
 
-    public DataSetUrlFetcher setPortalName(String portalName) {
+    DataSetUrlFetcher setPortalName(String portalName) {
         this.portalName = portalName;
         return this;
     }
