@@ -1,4 +1,4 @@
-package org.diceresearch.dataseturlfetcher.utility;
+package org.diceresearch.datasetfetcher.utility;
 
 import com.google.common.collect.ImmutableMap;
 import org.aksw.jena_sparql_api.http.QueryExecutionFactoryHttp;
@@ -19,14 +19,14 @@ import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.jena.vocabulary.DCAT;
 import org.apache.jena.vocabulary.RDF;
 import org.diceresearch.common.utility.rdf.RdfSerializerDeserializer;
-import org.diceresearch.dataseturlfetcher.messaging.SourceWithDynamicDestination;
-import org.diceresearch.dataseturlfetcher.model.Portal;
-import org.diceresearch.dataseturlfetcher.repository.PortalRepository;
+import org.diceresearch.datasetfetcher.messaging.SourceWithDynamicDestination;
+import org.diceresearch.datasetfetcher.model.Portal;
+import org.diceresearch.datasetfetcher.repository.PortalRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
-import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -36,10 +36,9 @@ import java.util.Optional;
 import static net.logstash.logback.argument.StructuredArguments.kv;
 
 @Component
-@Scope("prototype")
-@EnableRetry
-public class DataSetUrlFetcher implements CredentialsProvider, Runnable {
-    private static final Logger logger = LoggerFactory.getLogger(DataSetUrlFetcher.class);
+@Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+public class DataSetFetcher implements CredentialsProvider, Runnable {
+    private static final Logger logger = LoggerFactory.getLogger(DataSetFetcher.class);
 
     private org.aksw.jena_sparql_api.core.QueryExecutionFactory qef;
     private boolean isCanceled;
@@ -61,12 +60,13 @@ public class DataSetUrlFetcher implements CredentialsProvider, Runnable {
 
 
     @Autowired
-    public DataSetUrlFetcher(PortalRepository portalRepository, SourceWithDynamicDestination sourceWithDynamicDestination) {
+    public DataSetFetcher(PortalRepository portalRepository, SourceWithDynamicDestination sourceWithDynamicDestination) {
         this.portalRepository = portalRepository;
         this.sourceWithDynamicDestination = sourceWithDynamicDestination;
     }
 
-    void initialQueryExecutionFactory(Integer id) {
+    public void initialQueryExecutionFactory(Integer id) {
+        this.isCanceled = false;
         Optional<Portal> optionalPortal = this.portalRepository.findById(id);
         if (!optionalPortal.isPresent()) return;
         portal = optionalPortal.get();

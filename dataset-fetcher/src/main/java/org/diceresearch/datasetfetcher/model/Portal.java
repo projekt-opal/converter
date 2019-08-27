@@ -1,4 +1,4 @@
-package org.diceresearch.dataseturlfetcher.model;
+package org.diceresearch.datasetfetcher.model;
 
 import javax.persistence.*;
 

@@ -5,9 +5,9 @@
     <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
     <appender name="FILE"
               class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>/var/log/converter/dataset-url-fetcher.log</file>
+        <file>/var/log/converter/dataset-fetcher.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>dataset-url-fetcher.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>dataset-fetcher.%d{yyyy-MM-dd}.log</fileNamePattern>
             <maxHistory>10</maxHistory>
             <totalSizeCap>1GB</totalSizeCap>
         </rollingPolicy>
@@ -28,7 +28,7 @@
                 <pattern>
                     <pattern>
                         {
-                        "appName": "dataset-url-fetcher"
+                        "appName": "dataset-fetcher"
                         }
                     </pattern>
                 </pattern>
@@ -43,8 +43,8 @@
         <port>${RABBITMQ_PORT}</port>
         <username>${RABBITMQ_USERNAME}</username>
         <password>${RABBITMQ_PASSWORD}</password>
-        <applicationId>dataset-url-fetcher</applicationId>
-        <routingKeyPattern>dataset-url-fetcher</routingKeyPattern>
+        <applicationId>dataset-fetcher</applicationId>
+        <routingKeyPattern>dataset-fetcher</routingKeyPattern>
         <declareExchange>true</declareExchange>
         <exchangeType>direct</exchangeType>
         <exchangeName>ex_logstash</exchangeName>
@@ -58,7 +58,7 @@
     <root level="INFO">
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="FILE"/>
-<!--        <appender-ref ref="AMQP"/>-->
+        <appender-ref ref="AMQP"/>
     </root>
     <logger name="org.apache.jena.riot" additivity="false" level="ERROR">
         <appender-ref ref="CONSOLE" />

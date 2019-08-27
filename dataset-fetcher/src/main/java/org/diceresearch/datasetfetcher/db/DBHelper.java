@@ -1,7 +1,7 @@
-package org.diceresearch.dataseturlfetcher.db;
+package org.diceresearch.datasetfetcher.db;
 
-import org.diceresearch.dataseturlfetcher.model.Portal;
-import org.diceresearch.dataseturlfetcher.repository.PortalRepository;
+import org.diceresearch.datasetfetcher.model.Portal;
+import org.diceresearch.datasetfetcher.repository.PortalRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;

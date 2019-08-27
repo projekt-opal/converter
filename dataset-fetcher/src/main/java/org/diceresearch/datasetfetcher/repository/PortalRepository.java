@@ -1,6 +1,6 @@
-package org.diceresearch.dataseturlfetcher.repository;
+package org.diceresearch.datasetfetcher.repository;
 
-import org.diceresearch.dataseturlfetcher.model.Portal;
+import org.diceresearch.datasetfetcher.model.Portal;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 

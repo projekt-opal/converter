@@ -1,4 +1,4 @@
-package org.diceresearch.dataseturlfetcher.messaging;
+package org.diceresearch.datasetfetcher.messaging;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.stream.annotation.EnableBinding;

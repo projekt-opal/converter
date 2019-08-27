@@ -1,4 +1,4 @@
-package org.diceresearch.dataseturlfetcher.utility;
+package org.diceresearch.datasetfetcher.utility;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -8,21 +8,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Component
-public class DataSetUrlFetcherPool {
+public class DataSetFetcherPool {
     private final ApplicationContext context;
 
-    private Map<Integer, DataSetUrlFetcher> pool = new HashMap<>();
+    private Map<Integer, DataSetFetcher> pool = new HashMap<>();
 
     @Autowired
-    public DataSetUrlFetcherPool(ApplicationContext context) {
+    public DataSetFetcherPool(ApplicationContext context) {
         this.context = context;
     }
 
-    public DataSetUrlFetcher getFetcher(Integer id) {
+    public DataSetFetcher getFetcher(Integer id) {
         if (!pool.containsKey(id)) {
-            DataSetUrlFetcher fetcher = context.getBean(DataSetUrlFetcher.class);
-            fetcher.initialQueryExecutionFactory(id);
-            fetcher.setCanceled(false);
+            DataSetFetcher fetcher = context.getBean(DataSetFetcher.class);
             pool.put(id, fetcher);
         }
         return pool.get(id);

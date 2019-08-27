@@ -1,6 +1,6 @@
 spring:
   application:
-    name: dataset-url-fetcher
+    name: dataset-fetcher
 
 server:
   port: ${PORT:8001}

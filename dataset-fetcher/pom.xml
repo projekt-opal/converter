@@ -7,10 +7,10 @@
         <artifactId>converter</artifactId>
         <version>0.0.1</version>
     </parent>
-    <artifactId>dataset-url-fetcher</artifactId>
+    <artifactId>dataset-fetcher</artifactId>
     <version>0.0.1</version>
-    <name>dataset-url-fetcher</name>
-    <description>dataset url fetcher from crawler triple-store</description>
+    <name>dataset-fetcher</name>
+    <description>dataset fetcher from crawler triple-store</description>
 
     <repositories>
         <repository>
