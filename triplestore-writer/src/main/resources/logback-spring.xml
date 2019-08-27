@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
+    <appender name="FILE"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>/var/log/converter/tripleStore-writer.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>tripleStore-writer.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>10</maxHistory>
+            <totalSizeCap>1GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${FILE_LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+
+    <appender name="AMQP"
+              class="org.springframework.amqp.rabbit.logback.AmqpAppender">
+        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">-->
+            <providers>
+                <mdc/>
+                <context/>
+                <logLevel/>
+                <loggerName/>
+                <pattern>
+                    <pattern>
+                        {
+                        "appName": "tripleStore-writer"
+                        }
+                    </pattern>
+                </pattern>
+                <threadName/>
+                <message/>
+                <logstashMarkers/>
+                <stackTrace/>
+                <arguments/>
+            </providers>
+        </encoder>
+        <host>${RABBITMQ_ADDRESS}</host>
+        <port>${RABBITMQ_PORT}</port>
+        <username>${RABBITMQ_USERNAME}</username>
+        <password>${RABBITMQ_PASSWORD}</password>
+        <applicationId>tripleStore-writer</applicationId>
+        <routingKeyPattern>tripleStore-writer</routingKeyPattern>
+        <declareExchange>true</declareExchange>
+        <exchangeType>direct</exchangeType>
+        <exchangeName>ex_logstash</exchangeName>
+        <generateId>true</generateId>
+        <charset>UTF-8</charset>
+        <durable>true</durable>
+        <deliveryMode>PERSISTENT</deliveryMode>
+    </appender>
+
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
+        <appender-ref ref="AMQP"/>
+    </root>
+</configuration>

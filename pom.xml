@@ -21,6 +21,14 @@
 		<spring-cloud.version>Greenwich.SR2</spring-cloud.version>
 	</properties>
 
+	<dependencies>
+		<dependency>
+			<groupId>net.logstash.logback</groupId>
+			<artifactId>logstash-logback-encoder</artifactId>
+			<version>6.1</version>
+		</dependency>
+	</dependencies>
+
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
@@ -36,8 +44,10 @@
 	<modules>
 		<module>common</module>
 		<module>discovery-server</module>
-		<module>dataset-url-fetcher</module>
-		<module>dataset-graph-fetcher</module>
+		<module>dataset-fetcher</module>
+		<module>opal-confirm-conversion-service</module>
+		<module>quality-metrics-service</module>
+		<module>triplestore-writer</module>
 	</modules>
 
 </project>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Conversion-Tool</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+
+    <meta http-equiv="refresh" content="10">
+
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-5">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>play/pause</th>
+                    <th>name</th>
+                    <th>Last not fetched</th>
+                    <th>high</th>
+                </tr>
+                </thead>
+                <tbody>
+                <!--/*@thymesVar id="portals" type="java.util.Iterator<org.diceresearch.datasetfetcher.model.Portal>"*/-->
+                <div th:each="portal:${portals}">
+                    <tr th:object="${portal}">
+                        <td>
+                            <button th:dataId="*{id}" th:onclick="javascript:startFetching(this.getAttribute('dataId'));">
+                                <i class="fa fa-play" aria-hidden="true"></i>
+                            </button>
+                            <button th:dataId="*{id}" th:onclick="javascript:cancelFetching(this.getAttribute('dataId'));">
+                                <i class="fa fa-pause" aria-hidden="true"></i>
+                            </button>
+                        </td>
+                        <td><p th:text="*{name}">name</p></td>
+                        <td><input th:id="'lnf_'+ *{id}" th:value="*{lastNotFetched}"/></td>
+                        <td><input th:id="'high_'+ *{id}" th:value="*{high}"/></td>
+                    </tr>
+                </div>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script th:src="@{/js/opal/startFetching.js}"></script>
+<script th:src="@{/js/opal/cancelFetching.js}"></script>
+
+</body>
+</html>

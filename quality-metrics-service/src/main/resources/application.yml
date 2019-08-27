@@ -1,0 +1,25 @@
+
+spring:
+  application:
+    name: quality-metrics-service
+  cloud:
+    stream:
+      bindings:
+        input:
+          destination: opal-confirmed
+        output:
+          destination: quality-added-datasets
+
+eureka:
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    serviceUrl:
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka/},${EUREKA_URL:http://localhost:8762/eureka/}
+
+
+logging:
+  level:
+    org:
+      apache:
+        jena: error
