@@ -25,13 +25,13 @@ import org.diceresearch.dataseturlfetcher.repository.PortalRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static net.logstash.logback.argument.StructuredArguments.kv;
 
@@ -44,12 +44,8 @@ public class DataSetUrlFetcher implements CredentialsProvider, Runnable {
     private org.aksw.jena_sparql_api.core.QueryExecutionFactory qef;
     private boolean isCanceled;
 
-    @Value("${info.crawler.tripleStore.url}")
-    private String tripleStoreURL;
-    @Value("${info.crawler.tripleStore.username}")
-    private String tripleStoreUsername;
-    @Value("${info.crawler.tripleStore.password}")
-    private String tripleStorePassword;
+    private Resource portalResource;
+    private Portal portal;
 
     private org.apache.http.auth.Credentials credentials;
 
@@ -60,12 +56,9 @@ public class DataSetUrlFetcher implements CredentialsProvider, Runnable {
             .put("dct", "http://purl.org/dc/terms/")
             .build();
 
-
     private final PortalRepository portalRepository;
     private final SourceWithDynamicDestination sourceWithDynamicDestination;
 
-    private String portalName;
-    private Resource portalResource;
 
     @Autowired
     public DataSetUrlFetcher(PortalRepository portalRepository, SourceWithDynamicDestination sourceWithDynamicDestination) {
@@ -73,17 +66,40 @@ public class DataSetUrlFetcher implements CredentialsProvider, Runnable {
         this.sourceWithDynamicDestination = sourceWithDynamicDestination;
     }
 
+    void initialQueryExecutionFactory(Integer id) {
+        Optional<Portal> optionalPortal = this.portalRepository.findById(id);
+        if (!optionalPortal.isPresent()) return;
+        portal = optionalPortal.get();
+        String tripleStoreURL = portal.getQueryAddress();
+        String tripleStoreUsername = portal.getUsername();
+        String tripleStorePassword = portal.getPassword();
+
+
+        credentials = new UsernamePasswordCredentials(tripleStoreUsername, tripleStorePassword);
+
+        portalResource = ResourceFactory.createResource("http://projekt-opal.de/catalog/" + portal.getName());
+
+        HttpClientBuilder clientBuilder = HttpClientBuilder.create();
+        clientBuilder.setDefaultCredentialsProvider(this);
+        org.apache.http.impl.client.CloseableHttpClient client = clientBuilder.build();
+
+
+        qef = new QueryExecutionFactoryHttp(
+                String.format(tripleStoreURL, portal),
+                new org.apache.jena.sparql.core.DatasetDescription(), client);
+        qef = new QueryExecutionFactoryRetry(qef, 5, 1000);
+
+    }
+
     public void run() {
         try {
-            logger.info("Start fetching {}", kv("portalName", portalName));
-            initialQueryExecutionFactory(portalName);
+            logger.info("Start fetching {}", kv("portal", portal.getName()));
 
             int totalNumberOfDataSets = getTotalNumberOfDataSets();
             logger.debug("Total number of datasets is {}", kv("Total #Datasets", totalNumberOfDataSets));
             if (totalNumberOfDataSets == -1) {
                 throw new Exception("Cannot Query the TripleStore");
             }
-            Portal portal = portalRepository.findByName(portalName);
             int high = portal.getHigh();
             int lnf = portal.getLastNotFetched();
 
@@ -96,7 +112,7 @@ public class DataSetUrlFetcher implements CredentialsProvider, Runnable {
 
             for (int idx = lnf; idx < high; idx += PAGE_SIZE) {
                 if (isCanceled) {
-                    logger.info("fetching portal {} is cancelled", portalName);
+                    logger.info("fetching portal {} is cancelled", this.portal);
                     return;
                 }
                 portal.setLastNotFetched(idx);
@@ -110,24 +126,57 @@ public class DataSetUrlFetcher implements CredentialsProvider, Runnable {
                         .parallelStream().forEach(resource -> {
                     Model graph = getGraph(resource);
                     byte[] serialize = RdfSerializerDeserializer.serialize(graph);
-                    sourceWithDynamicDestination.sendMessage(serialize, "dataset-graph");
+                    sourceWithDynamicDestination.sendMessage(serialize, portal.getOutputQueue());
                 });
             }
             portal.setLastNotFetched(high);
             portalRepository.save(portal);
 
-
-            logger.info("fetching portal {} finished", portalName);
+            logger.info("fetching portal {} finished", this.portal);
         } catch (Exception e) {
-            logger.error("An Error occurred in converting portal {}, {}", portalName, e);
+            logger.error("An Error occurred in converting portal {}, {}", portal, e);
         }
     }
 
     private Model getGraph(Resource resource) {
         Model dataSetGraph = getAllPredicatesObjectsPublisherDistributions(resource);
-        dataSetGraph.add(portalResource, RDF.type, DCAT.Catalog);
-        dataSetGraph.add(portalResource, DCAT.dataset, resource);
+        Resource catalog = getCatalog(resource);
+        if (catalog == null) catalog = portalResource;
+        dataSetGraph.add(catalog, RDF.type, DCAT.Catalog);
+        dataSetGraph.add(catalog, DCAT.dataset, resource);
         return dataSetGraph;
+    }
+
+    private Resource getCatalog(Resource dataSet) {
+        Resource catalog = null;
+
+        try {
+            ParameterizedSparqlString pss = new ParameterizedSparqlString("" +
+                    "SELECT ?catalog " +
+                    "WHERE { " +
+                    "  GRAPH ?g { " +
+                    "    ?catalog a dcat:Catalog ." +
+                    "    ?catalog dcat:dataset ?dataSet . " +
+                    "  } " +
+                    "}");
+
+            pss.setNsPrefixes(PREFIXES);
+            pss.setParam("dataSet", dataSet);
+
+            try (QueryExecution queryExecution = qef.createQueryExecution(pss.asQuery())) {
+                ResultSet resultSet = queryExecution.execSelect();
+                while (resultSet.hasNext()) {
+                    QuerySolution solution = resultSet.nextSolution();
+                    catalog = solution.getResource("catalog");
+                    logger.trace("get catalog: {}", catalog);
+                }
+            } catch (Exception ex) {
+                logger.error("Exception in executing select ", ex);
+            }
+        } catch (Exception e) {
+            logger.error("Exception in getting the catalog ", e);
+        }
+        return catalog;
     }
 
     private Model getAllPredicatesObjectsPublisherDistributions(Resource dataSet) {
@@ -135,13 +184,13 @@ public class DataSetUrlFetcher implements CredentialsProvider, Runnable {
         Model model;
 
         ParameterizedSparqlString pss = new ParameterizedSparqlString("" +
-                "CONSTRUCT { " + "?dataSet ?predicate ?object .\n" +
-                "\t?object ?p2 ?o2}\n" +
-                "WHERE { \n" +
-                "  GRAPH ?g {\n" +
-                "    ?dataSet ?predicate ?object.\n" +
-                "    OPTIONAL { ?object ?p2 ?o2 }\n" +
-                "  }\n" +
+                "CONSTRUCT { " + "?dataSet ?predicate ?object . " +
+                "?object ?p2 ?o2} " +
+                "WHERE { " +
+                "  GRAPH ?g { " +
+                "    ?dataSet ?predicate ?object. " +
+                "    OPTIONAL { ?object ?p2 ?o2 } " +
+                "  } " +
                 "}");
 
         pss.setNsPrefixes(PREFIXES);
@@ -161,23 +210,6 @@ public class DataSetUrlFetcher implements CredentialsProvider, Runnable {
             logger.error("Exception in executing construct ", ex);
         }
         return model;
-    }
-
-    private void initialQueryExecutionFactory(String portal) {
-        credentials = new UsernamePasswordCredentials(tripleStoreUsername, tripleStorePassword);
-
-        portalResource = ResourceFactory.createResource("http://projekt-opal.de/catalog/" + portalName);
-
-        HttpClientBuilder clientBuilder = HttpClientBuilder.create();
-        clientBuilder.setDefaultCredentialsProvider(this);
-        org.apache.http.impl.client.CloseableHttpClient client = clientBuilder.build();
-
-
-        qef = new QueryExecutionFactoryHttp(
-                String.format(tripleStoreURL, portal),
-                new org.apache.jena.sparql.core.DatasetDescription(), client);
-        qef = new QueryExecutionFactoryRetry(qef, 5, 1000);
-
     }
 
     /**
@@ -252,10 +284,10 @@ public class DataSetUrlFetcher implements CredentialsProvider, Runnable {
         return cnt;
     }
 
-    DataSetUrlFetcher setPortalName(String portalName) {
-        this.portalName = portalName;
-        return this;
-    }
+//    DataSetUrlFetcher setPortalName(String portalName) {
+//        this.portalName = portalName;
+//        return this;
+//    }
 
     public void setCanceled(boolean canceled) {
         isCanceled = canceled;

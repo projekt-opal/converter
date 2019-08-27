@@ -30,16 +30,16 @@
                 <div th:each="portal:${portals}">
                     <tr th:object="${portal}">
                         <td>
-                            <button th:dataName="*{name}" th:onclick="javascript:startFetching(this.getAttribute('dataName'));">
+                            <button th:dataId="*{id}" th:onclick="javascript:startFetching(this.getAttribute('dataId'));">
                                 <i class="fa fa-play" aria-hidden="true"></i>
                             </button>
-                            <button th:dataName="*{name}" th:onclick="javascript:cancelFetching(this.getAttribute('dataName'));">
+                            <button th:dataId="*{id}" th:onclick="javascript:cancelFetching(this.getAttribute('dataId'));">
                                 <i class="fa fa-pause" aria-hidden="true"></i>
                             </button>
                         </td>
                         <td><p th:text="*{name}">name</p></td>
-                        <td><input th:id="''+ *{name} + '_lnf'" th:value="*{lastNotFetched}"/></td>
-                        <td><input th:id="''+ *{name} + '_high'" th:value="*{high}"/></td>
+                        <td><input th:id="'lnf_'+ *{id}" th:value="*{lastNotFetched}"/></td>
+                        <td><input th:id="'high_'+ *{id}" th:value="*{high}"/></td>
                     </tr>
                 </div>
                 </tbody>

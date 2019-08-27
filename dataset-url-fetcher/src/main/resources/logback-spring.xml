@@ -58,6 +58,10 @@
     <root level="INFO">
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="FILE"/>
-        <appender-ref ref="AMQP"/>
+<!--        <appender-ref ref="AMQP"/>-->
     </root>
+    <logger name="org.apache.jena.riot" additivity="false" level="ERROR">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="FILE" />
+    </logger>
 </configuration>

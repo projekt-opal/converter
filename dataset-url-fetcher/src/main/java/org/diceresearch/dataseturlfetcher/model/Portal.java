@@ -18,6 +18,54 @@ public class Portal {
     @Column
     private int high;
 
+    @Column
+    private String queryAddress;
+
+    @Column
+    private String username;
+
+    @Column
+    private String password;
+
+    @Column
+    private String outputQueue;
+
+    public String getQueryAddress() {
+        return queryAddress;
+    }
+
+    public Portal setQueryAddress(String queryAddress) {
+        this.queryAddress = queryAddress;
+        return this;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public Portal setUsername(String username) {
+        this.username = username;
+        return this;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public Portal setPassword(String password) {
+        this.password = password;
+        return this;
+    }
+
+    public String getOutputQueue() {
+        return outputQueue;
+    }
+
+    public Portal setOutputQueue(String outputQueue) {
+        this.outputQueue = outputQueue;
+        return this;
+    }
+
     public String getName() {
         return name;
     }

@@ -6,5 +6,4 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface PortalRepository extends CrudRepository<Portal, Integer> {
-    Portal findByName(String portalName);
 }
