@@ -83,3 +83,4 @@ secrets.yml
 /triplestore-writer/mvnw
 /triplestore-writer/mvnw.cmd
 /triplestore-writer/.mvn/
+/.env

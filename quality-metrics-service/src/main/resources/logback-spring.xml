@@ -19,7 +19,7 @@
 
     <appender name="AMQP"
               class="org.springframework.amqp.rabbit.logback.AmqpAppender">
-        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">-->
+        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
             <providers>
                 <mdc/>
                 <context/>

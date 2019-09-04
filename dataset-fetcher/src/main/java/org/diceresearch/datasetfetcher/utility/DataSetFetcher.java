@@ -74,6 +74,7 @@ public class DataSetFetcher implements CredentialsProvider, Runnable {
         String tripleStoreUsername = portal.getUsername();
         String tripleStorePassword = portal.getPassword();
 
+        logger.info("TripleStore info: {} {}", kv("URL", tripleStoreURL), kv("username", tripleStoreUsername));
 
         credentials = new UsernamePasswordCredentials(tripleStoreUsername, tripleStorePassword);
 
