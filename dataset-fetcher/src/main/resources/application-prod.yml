@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: dataset-fetcher
+  rabbitmq:
+    host: ${RABBITMQ_ADDRESS}
+    port: ${RABBITMQ_PORT}
+    username: ${RABBITMQ_USERNAME}
+    password: ${RABBITMQ_PASSWORD}
+  datasource:
+    url: jdbc:mysql://${DATABASE_URL}:3306/opal?useSSL=false&allowPublicKeyRetrieval=true&autoReconnect=true&useUnicode=true&characterEncoding=utf-8
+    username: root
+    password: ${DATABASE_ROOT_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+
+server:
+  port: ${PORT:8001}
+
+
+eureka:
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    serviceUrl:
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka/},${EUREKA_URL2:http://localhost:8762/eureka/}
+
