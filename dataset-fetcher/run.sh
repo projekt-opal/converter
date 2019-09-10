@@ -1,3 +1,3 @@
 #!/bin/bash
-sleep 10
-java -jar ./app.jar
+sleep 60
+java -jar -Dspring.profiles.active=prod ./app.jar

@@ -21,8 +21,8 @@ services:
       - 15672:15672
     healthcheck:
       timeout: 5s
-      interval: 5s
-      retries: 5
+      interval: 3s
+      retries: 30
       test: ["CMD", "rabbitmqctl", "status"]
   es:
     image: elasticsearch
@@ -47,6 +47,18 @@ services:
     depends_on:
       - es
       - rabbitmq
+  mysql:
+    image: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=opal
+    ports:
+      - 3306:3306
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      interval: 2s
+      timeout: 20s
+      retries: 30
   discovery-server:
     image: mnafshin/opal-discovery-server:latest
     ports:
@@ -59,7 +71,6 @@ services:
     image: mnafshin/opal-dataset-fetcher:latest
     ports:
       - 8001:8001
-      - 8000:8000
     environment:
       - RABBITMQ_ADDRESS=rabbitmq
       - RABBITMQ_PORT=5672
@@ -70,13 +81,15 @@ services:
       - CRAWLER_TRIPLESTORE_URL=${CRAWLER_TRIPLESTORE_URL}
       - EUREKA_URL=http://discovery-server:8761/eureka/
       - EUREKA_URL2=http://discovery-server-replica:8762/eureka/
+      - DATABASE_URL=mysql
+      - DATABASE_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
     depends_on:
       - rabbitmq
       - logstash
       - discovery-server
       - discovery-server-replica
       - es
-      - fuseki
+      - mysql
   opal-confirm-conversion-service:
     image: mnafshin/opal-confirm-conversion-service
     environment:
