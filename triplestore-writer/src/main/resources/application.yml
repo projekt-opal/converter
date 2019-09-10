@@ -6,12 +6,15 @@ spring:
       bindings:
         input:
           destination: quality-added-datasets
+          group: triple-store
   rabbitmq:
     host: ${RABBITMQ_ADDRESS}
     port: ${RABBITMQ_PORT}
     username: ${RABBITMQ_USERNAME}
     password: ${RABBITMQ_PASSWORD}
-
+    listener:
+      simple.max-concurrency: 2
+      simple.concurrency: 1
 
 eureka:
   client:
