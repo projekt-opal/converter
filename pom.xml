@@ -48,6 +48,7 @@
 		<module>opal-confirm-conversion-service</module>
 		<module>quality-metrics-service</module>
 		<module>triplestore-writer</module>
+		<module>elasticsearch-writer</module>
 	</modules>
 
 </project>

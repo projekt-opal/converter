@@ -193,3 +193,24 @@ services:
       - dataset-fetcher
       - opal-confirm-conversion-service
       - quality-metrics-service
+  elasticsearch-writer:
+    image: mnafshin/opal-elasticsearch-writer:latest
+    volumes:
+      - /var/log/converter/:/var/log/converter/
+    environment:
+      - RABBITMQ_ADDRESS=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USERNAME=${RABBITMQ_USERNAME}
+      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
+      - EUREKA_URL=http://discovery-server:8761/eureka/
+      - EUREKA_URL2=http://discovery-server-replica:8762/eureka/
+    depends_on:
+      - rabbitmq
+      - logstash
+      - discovery-server
+      - discovery-server-replica
+      - es
+      - fuseki
+      - dataset-fetcher
+      - opal-confirm-conversion-service
+      - quality-metrics-service
