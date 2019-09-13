@@ -87,3 +87,6 @@ secrets.yml
 /elasticsearch-writer/mvnw.cmd
 /elasticsearch-writer/mvnw
 /elasticsearch-writer/.mvn/
+/webservices/mvnw
+/webservices/mvnw.cmd
+/webservices/.mvn/

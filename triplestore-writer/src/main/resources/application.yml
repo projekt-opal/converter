@@ -30,10 +30,3 @@ info:
       url: http://${OPAL_TRIPLESTORE_URL}:3030/opal
       username: ${OPAL_TRIPLESTORE_USERNAME}
       password: ${OPAL_TRIPLESTORE_PASSWORD}
-
-logging:
-  level:
-    org:
-      apache:
-        jena: error
-    SPARQL: error

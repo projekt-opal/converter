@@ -60,4 +60,14 @@
         <appender-ref ref="FILE"/>
         <appender-ref ref="AMQP"/>
     </root>
+    <logger name="org.apache.jena.riot" additivity="false" level="ERROR">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="FILE" />
+        <appender-ref ref="AMQP"/>
+    </logger>
+    <logger name="org.apache.jena.sparql" additivity="false" level="ERROR">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="FILE" />
+        <appender-ref ref="AMQP"/>
+    </logger>
 </configuration>

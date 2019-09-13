@@ -1,0 +1,22 @@
+
+spring:
+  application:
+    name: webservices
+
+eureka:
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    serviceUrl:
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka/},${EUREKA_URL2:http://localhost:8762/eureka/}
+
+
+server:
+  port: 8080
+
+info:
+  opal:
+    tripleStore:
+      url: http://${OPAL_TRIPLESTORE_URL}:3030/opal/query
+      username: ${OPAL_TRIPLESTORE_USERNAME}
+      password: ${OPAL_TRIPLESTORE_PASSWORD}
