@@ -1,4 +1,4 @@
-package org.diceresearch.webservices.web.control.triplestore;
+package org.diceresearch.webservices.utility.triplestore;
 
 import org.apache.jena.query.ParameterizedSparqlString;
 import org.apache.jena.rdf.model.Model;
@@ -8,40 +8,35 @@ import org.diceresearch.webservices.model.dto.FilterDTO;
 import org.diceresearch.webservices.model.dto.FilterValueDTO;
 import org.diceresearch.webservices.model.dto.ReceivingFilterDTO;
 import org.diceresearch.webservices.model.mapper.ModelToLongViewDTOMapper;
-import org.diceresearch.webservices.utility.SparQLRunner;
+import org.diceresearch.webservices.utility.DataProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-@RestController
-public class RestAPIController {
+@Profile(value = "triplestore")
+@Component
+public class TripleStoreProvider implements DataProvider {
 
-    private static final Logger logger = LoggerFactory.getLogger(RestAPIController.class);
+    private static final Logger logger = LoggerFactory.getLogger(TripleStoreProvider.class);
 
     private final SparQLRunner sparQLRunner;
     private final ModelToLongViewDTOMapper modelToLongViewDTOMapper;
 
 
     @Autowired
-    public RestAPIController(SparQLRunner sparQLRunner, ModelToLongViewDTOMapper modelToLongViewDTOMapper) {
+    public TripleStoreProvider(SparQLRunner sparQLRunner, ModelToLongViewDTOMapper modelToLongViewDTOMapper) {
         this.sparQLRunner = sparQLRunner;
         this.modelToLongViewDTOMapper = modelToLongViewDTOMapper;
     }
 
-    @CrossOrigin
-    @PostMapping("/dataSets/getNumberOfDataSets")
-    public Long getNumberOFDataSets(
-            @RequestParam(name = "searchQuery", required = false, defaultValue = "") String searchQuery,
-            @RequestParam(name = "searchIn", required = false) String[] searchIn,
-            @RequestParam(name = "orderBy", required = false) String orderBy, // TODO: 26.02.19 if quality metrics can be set then we need to have asc, des
-            @RequestBody(required = false) ReceivingFilterDTO[] filters
-    ) {
-
+    @Override
+    public long getNumberOfDatasets(String searchQuery, String[] searchIn, String orderBy, ReceivingFilterDTO[] filters) {
         Long num = -1L;
         try {
             ParameterizedSparqlString pss = new ParameterizedSparqlString();
@@ -62,16 +57,8 @@ public class RestAPIController {
         return num;
     }
 
-    @CrossOrigin
-    @PostMapping("/dataSets/getSubList")
-    public List<DataSetLongViewDTO> getSubListOFDataSets(
-            @RequestParam(name = "searchQuery", required = false, defaultValue = "") String searchQuery,
-            @RequestParam(name = "searchIn", required = false) String[] searchIn,
-            @RequestParam(name = "orderBy", required = false) String orderBy, // TODO: 26.02.19 if quality metrics can be set then we need to have asc, des
-            @RequestParam(name = "low", required = false, defaultValue = "0") Long low,
-            @RequestParam(name = "limit", required = false, defaultValue = "10") Long limit,
-            @RequestBody(required = false) ReceivingFilterDTO[] filters
-    ) {
+    @Override
+    public List<DataSetLongViewDTO> getSubListOFDataSets(String searchQuery, Long low, Long limit, String[] searchIn, String orderBy, ReceivingFilterDTO[] filters) {
         List<DataSetLongViewDTO> ret = new ArrayList<>();
         try {
             ParameterizedSparqlString pss = new ParameterizedSparqlString();
@@ -97,6 +84,31 @@ public class RestAPIController {
         } catch (Exception e) {
             logger.error("An error occurred in getting the results", e);
         }
+        return ret;
+    }
+
+    @Override
+    public List<FilterDTO> getFilters() {
+        List<FilterDTO> ret = new ArrayList<>();
+        ret.add(new FilterDTO()
+                .setUri("http://www.w3.org/ns/dcat#theme")
+                .setTitle("Theme")
+                .setValues(Arrays.asList(
+                        new FilterValueDTO("Energy", "Energy", 10),
+                        new FilterValueDTO("Environment", "Environment", 143),
+                        new FilterValueDTO("http://projeckt-opal.de/theme/mcloud/climateAndWeather", "climate and weather", 143))));
+        ret.add(new FilterDTO()
+                .setUri("http://www.w3.org/ns/dcat#publisher")
+                .setTitle("publisher")
+                .setValues(Arrays.asList(
+                        new FilterValueDTO("DB", "DB", 10),
+                        new FilterValueDTO("others", "others", 143))));
+        ret.add(new FilterDTO()
+                .setUri("http://purl.org/dc/terms/license")
+                .setTitle("license")
+                .setValues(Arrays.asList(
+                        new FilterValueDTO("CCv4.0", "CCv4.0", 50),
+                        new FilterValueDTO("others", "others", 93))));
         return ret;
     }
 
@@ -127,36 +139,8 @@ public class RestAPIController {
         return filtersString.toString();
     }
 
-    @CrossOrigin
-    @GetMapping("/filters/list")
-    public List<FilterDTO> getFilters() {
-        List<FilterDTO> ret = new ArrayList<>();
-        ret.add(new FilterDTO()
-                .setUri("http://www.w3.org/ns/dcat#theme")
-                .setTitle("Theme")
-                .setValues(Arrays.asList(
-                        new FilterValueDTO("Energy", "Energy", 10),
-                        new FilterValueDTO("Environment", "Environment", 143),
-                        new FilterValueDTO("http://projeckt-opal.de/theme/mcloud/climateAndWeather", "climate and weather", 143))));
-        ret.add(new FilterDTO()
-                .setUri("http://www.w3.org/ns/dcat#publisher")
-                .setTitle("publisher")
-                .setValues(Arrays.asList(
-                        new FilterValueDTO("DB", "DB", 10),
-                        new FilterValueDTO("others", "others", 143))));
-        ret.add(new FilterDTO()
-                .setUri("http://purl.org/dc/terms/license")
-                .setTitle("license")
-                .setValues(Arrays.asList(
-                        new FilterValueDTO("CCv4.0", "CCv4.0", 50),
-                        new FilterValueDTO("others", "others", 93))));
-        return ret;
-    }
-
     private Model getGraphOfDataSet(Resource dataSet) {
         Model model;
-
-
         ParameterizedSparqlString pss = new ParameterizedSparqlString("" +
                 "CONSTRUCT { " + "?dataSet ?predicate ?object. " +
                 "?object ?p2 ?o2} " +
@@ -199,5 +183,4 @@ public class RestAPIController {
         }
         return resources.get(0);
     }
-
 }

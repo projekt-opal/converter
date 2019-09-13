@@ -1,3 +1,3 @@
 #!/bin/bash
 sleep 60
-java -jar ./app.jar
+java -jar -Dspring.profiles.active=triplestore ./app.jar

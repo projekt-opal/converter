@@ -1,4 +1,4 @@
-package org.diceresearch.webservices.utility;
+package org.diceresearch.webservices.utility.triplestore;
 
 import org.aksw.jena_sparql_api.http.QueryExecutionFactoryHttp;
 import org.aksw.jena_sparql_api.retry.core.QueryExecutionFactoryRetry;
