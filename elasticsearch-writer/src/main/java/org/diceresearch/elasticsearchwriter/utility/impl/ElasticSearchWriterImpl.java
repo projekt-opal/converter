@@ -29,5 +29,6 @@ public class ElasticSearchWriterImpl implements ElasticSearchWriter {
             }
         } catch (Exception ignored) {
         }
+        // TODO: 9/16/19 call es writer here
     }
 }

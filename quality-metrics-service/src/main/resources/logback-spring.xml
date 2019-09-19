@@ -44,7 +44,7 @@
         <username>${RABBITMQ_USERNAME}</username>
         <password>${RABBITMQ_PASSWORD}</password>
         <applicationId>quality-metrics-service</applicationId>
-        <routingKeyPattern>quality-metrics-service</routingKeyPattern>
+        <routingKeyPattern>#</routingKeyPattern>
         <declareExchange>true</declareExchange>
         <exchangeType>direct</exchangeType>
         <exchangeName>ex_logstash</exchangeName>

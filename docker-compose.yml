@@ -1,19 +1,6 @@
 version: "2.1"
 
 services:
-  fuseki-data:
-    image: busybox
-    volumes:
-      - /fuseki
-  fuseki:
-    image: stain/jena-fuseki
-    ports:
-      - 3030:3030
-    volumes_from:
-      - fuseki-data:rw
-    environment:
-      - ADMIN_PASSWORD=${OPAL_TRIPLESTORE_PASSWORD}
-      - JVM_ARGS=-Xmx16g
   rabbitmq:
     image: rabbitmq:3-management
     ports:
@@ -24,28 +11,14 @@ services:
       interval: 3s
       retries: 30
       test: ["CMD", "rabbitmqctl", "status"]
-  es:
-    image: elasticsearch
-    ports:
-      - 9200:9200
-      - 9300:9300
-  kibana:
-    image: kibana:latest
-    environment:
-      - ELASTICSEARCH_URL=http://es:9200
-    ports:
-      - 5601:5601
-    depends_on:
-      - es
   logstash:
-    image: logstash:latest
+    image: logstash:7.3.2
     volumes:
       - ./logstash_AMQP.conf:/config-dir/logstash.conf
     ports:
       - 5000:5000
     command: logstash -f /config-dir/logstash.conf
     depends_on:
-      - es
       - rabbitmq
   mysql:
     image: mysql
@@ -63,10 +36,6 @@ services:
     image: mnafshin/opal-discovery-server:latest
     ports:
       - 8761:8761
-  discovery-server-replica:
-    image: mnafshin/opal-discovery-server:latest
-    ports:
-      - 8762:8761
   dataset-fetcher:
     image: mnafshin/opal-dataset-fetcher:latest
     ports:
@@ -80,15 +49,12 @@ services:
       - CRAWLER_TRIPLESTORE_PASSWORD=${CRAWLER_TRIPLESTORE_PASSWORD}
       - CRAWLER_TRIPLESTORE_URL=${CRAWLER_TRIPLESTORE_URL}
       - EUREKA_URL=http://discovery-server:8761/eureka/
-      - EUREKA_URL2=http://discovery-server-replica:8762/eureka/
       - DATABASE_URL=mysql
       - DATABASE_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
     depends_on:
       - rabbitmq
       - logstash
       - discovery-server
-      - discovery-server-replica
-      - es
       - mysql
   opal-confirm-conversion-service:
     image: mnafshin/opal-confirm-conversion-service
@@ -100,14 +66,10 @@ services:
       - RABBITMQ_USERNAME=${RABBITMQ_USERNAME}
       - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
       - EUREKA_URL=http://discovery-server:8761/eureka/
-      - EUREKA_URL2=http://discovery-server-replica:8762/eureka/
     depends_on:
       - rabbitmq
       - logstash
       - discovery-server
-      - discovery-server-replica
-      - es
-      - fuseki
       - dataset-fetcher
   quality-metrics-service:
     image: mnafshin/opal-quality-metrics-service:latest
@@ -119,14 +81,10 @@ services:
       - RABBITMQ_USERNAME=${RABBITMQ_USERNAME}
       - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
       - EUREKA_URL=http://discovery-server:8761/eureka/
-      - EUREKA_URL2=http://discovery-server-replica:8762/eureka/
     depends_on:
       - rabbitmq
       - logstash
       - discovery-server
-      - discovery-server-replica
-      - es
-      - fuseki
       - dataset-fetcher
       - opal-confirm-conversion-service
   quality-metrics-service_replica_1:
@@ -139,14 +97,10 @@ services:
       - RABBITMQ_USERNAME=${RABBITMQ_USERNAME}
       - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
       - EUREKA_URL=http://discovery-server:8761/eureka/
-      - EUREKA_URL2=http://discovery-server-replica:8762/eureka/
     depends_on:
       - rabbitmq
       - logstash
       - discovery-server
-      - discovery-server-replica
-      - es
-      - fuseki
       - dataset-fetcher
       - opal-confirm-conversion-service
   quality-metrics-service_replica_2:
@@ -159,14 +113,10 @@ services:
       - RABBITMQ_USERNAME=${RABBITMQ_USERNAME}
       - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
       - EUREKA_URL=http://discovery-server:8761/eureka/
-      - EUREKA_URL2=http://discovery-server-replica:8762/eureka/
     depends_on:
       - rabbitmq
       - logstash
       - discovery-server
-      - discovery-server-replica
-      - es
-      - fuseki
       - dataset-fetcher
       - opal-confirm-conversion-service
   triplestore-writer:
@@ -179,7 +129,6 @@ services:
       - RABBITMQ_USERNAME=${RABBITMQ_USERNAME}
       - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
       - EUREKA_URL=http://discovery-server:8761/eureka/
-      - EUREKA_URL2=http://discovery-server-replica:8762/eureka/
       - OPAL_TRIPLESTORE_URL=fuseki
       - OPAL_TRIPLESTORE_USERNAME=${OPAL_TRIPLESTORE_USERNAME}
       - OPAL_TRIPLESTORE_PASSWORD=${OPAL_TRIPLESTORE_PASSWORD}
@@ -187,9 +136,6 @@ services:
       - rabbitmq
       - logstash
       - discovery-server
-      - discovery-server-replica
-      - es
-      - fuseki
       - dataset-fetcher
       - opal-confirm-conversion-service
       - quality-metrics-service
@@ -203,14 +149,10 @@ services:
       - RABBITMQ_USERNAME=${RABBITMQ_USERNAME}
       - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
       - EUREKA_URL=http://discovery-server:8761/eureka/
-      - EUREKA_URL2=http://discovery-server-replica:8762/eureka/
     depends_on:
       - rabbitmq
       - logstash
       - discovery-server
-      - discovery-server-replica
-      - es
-      - fuseki
       - dataset-fetcher
       - opal-confirm-conversion-service
       - quality-metrics-service
@@ -227,16 +169,12 @@ services:
       - OPAL_TRIPLESTORE_USERNAME=${OPAL_TRIPLESTORE_USERNAME}
       - OPAL_TRIPLESTORE_PASSWORD=${OPAL_TRIPLESTORE_PASSWORD}
       - EUREKA_URL=http://discovery-server:8761/eureka/
-      - EUREKA_URL2=http://discovery-server-replica:8762/eureka/
     ports:
       - 8080:8080
     depends_on:
       - rabbitmq
       - logstash
       - discovery-server
-      - discovery-server-replica
-      - es
-      - fuseki
       - dataset-fetcher
       - opal-confirm-conversion-service
       - quality-metrics-service

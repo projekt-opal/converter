@@ -44,7 +44,7 @@
         <username>${RABBITMQ_USERNAME}</username>
         <password>${RABBITMQ_PASSWORD}</password>
         <applicationId>opal-confirm-conversion-service</applicationId>
-        <routingKeyPattern>opal-confirm-conversion-service</routingKeyPattern>
+        <routingKeyPattern>#</routingKeyPattern>
         <declareExchange>true</declareExchange>
         <exchangeType>direct</exchangeType>
         <exchangeName>ex_logstash</exchangeName>

@@ -285,11 +285,6 @@ public class DataSetFetcher implements CredentialsProvider, Runnable {
         return cnt;
     }
 
-//    DataSetUrlFetcher setPortalName(String portalName) {
-//        this.portalName = portalName;
-//        return this;
-//    }
-
     public void setCanceled(boolean canceled) {
         isCanceled = canceled;
     }

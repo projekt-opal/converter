@@ -43,7 +43,7 @@
         <username>${RABBITMQ_USERNAME}</username>
         <password>${RABBITMQ_PASSWORD}</password>
         <applicationId>webservices</applicationId>
-        <routingKeyPattern>webservices</routingKeyPattern>
+        <routingKeyPattern>#</routingKeyPattern>
         <declareExchange>true</declareExchange>
         <exchangeType>direct</exchangeType>
         <exchangeName>ex_logstash</exchangeName>
