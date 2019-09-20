@@ -1,4 +1,4 @@
-version: "2.1"
+version: '3.2'
 
 services:
   rabbitmq:
@@ -6,11 +6,40 @@ services:
     ports:
       - 5672:5672
       - 15672:15672
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USERNAME}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
     healthcheck:
       timeout: 5s
       interval: 3s
       retries: 30
       test: ["CMD", "rabbitmqctl", "status"]
+    volumes:
+      - rabbitmqdata:/var/lib/rabbitmq/
+  es:
+    image: elasticsearch:7.3.2
+    ports:
+      - 9200:9200
+    volumes:
+      - esdata01:/usr/share/elasticsearch/data
+      - eslog:/var/log/elasticsearch/
+    environment:
+      - ES_JAVA_OPTS=-Xms4g -Xmx4g
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+#      - xpack.security.enabled=true
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+  kibana:
+    image: kibana:7.3.2
+    environment:
+      - ELASTICSEARCH_HOSTS=http://es:9200
+    ports:
+      - 5601:5601
+    depends_on:
+      - es
   logstash:
     image: logstash:7.3.2
     volumes:
@@ -20,13 +49,16 @@ services:
     command: logstash -f /config-dir/logstash.conf
     depends_on:
       - rabbitmq
+      - es
   mysql:
-    image: mysql
+    image: mysql:8.0.17
     environment:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
       - MYSQL_DATABASE=opal
     ports:
       - 3306:3306
+    volumes:
+      - mysqldata:/var/lib/mysql
     healthcheck:
       test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
       interval: 2s
@@ -45,9 +77,9 @@ services:
       - RABBITMQ_PORT=5672
       - RABBITMQ_USERNAME=${RABBITMQ_USERNAME}
       - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
+      - CRAWLER_TRIPLESTORE_URL=${CRAWLER_TRIPLESTORE_URL}
       - CRAWLER_TRIPLESTORE_USERNAME=${CRAWLER_TRIPLESTORE_USERNAME}
       - CRAWLER_TRIPLESTORE_PASSWORD=${CRAWLER_TRIPLESTORE_PASSWORD}
-      - CRAWLER_TRIPLESTORE_URL=${CRAWLER_TRIPLESTORE_URL}
       - EUREKA_URL=http://discovery-server:8761/eureka/
       - DATABASE_URL=mysql
       - DATABASE_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
@@ -59,7 +91,7 @@ services:
   opal-confirm-conversion-service:
     image: mnafshin/opal-confirm-conversion-service
     volumes:
-      - /var/log/converter/:/var/log/converter/
+      - logvolume1:/var/log/converter/
     environment:
       - RABBITMQ_ADDRESS=rabbitmq
       - RABBITMQ_PORT=5672
@@ -74,7 +106,7 @@ services:
   quality-metrics-service:
     image: mnafshin/opal-quality-metrics-service:latest
     volumes:
-      - /var/log/converter/:/var/log/converter/
+      - logvolume1:/var/log/converter/
     environment:
       - RABBITMQ_ADDRESS=rabbitmq
       - RABBITMQ_PORT=5672
@@ -90,7 +122,7 @@ services:
   quality-metrics-service_replica_1:
     image: mnafshin/opal-quality-metrics-service:latest
     volumes:
-      - /var/log/converter1/:/var/log/converter/
+      - logvolume2:/var/log/converter/
     environment:
       - RABBITMQ_ADDRESS=rabbitmq
       - RABBITMQ_PORT=5672
@@ -106,7 +138,7 @@ services:
   quality-metrics-service_replica_2:
     image: mnafshin/opal-quality-metrics-service:latest
     volumes:
-      - /var/log/converter2/:/var/log/converter/
+      - logvolume3:/var/log/converter/
     environment:
       - RABBITMQ_ADDRESS=rabbitmq
       - RABBITMQ_PORT=5672
@@ -122,14 +154,14 @@ services:
   triplestore-writer:
     image: mnafshin/opal-triplestore-writer:latest
     volumes:
-      - /var/log/converter/:/var/log/converter/
+      - logvolume1:/var/log/converter/
     environment:
       - RABBITMQ_ADDRESS=rabbitmq
       - RABBITMQ_PORT=5672
       - RABBITMQ_USERNAME=${RABBITMQ_USERNAME}
       - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
       - EUREKA_URL=http://discovery-server:8761/eureka/
-      - OPAL_TRIPLESTORE_URL=fuseki
+      - OPAL_TRIPLESTORE_URL=${OPAL_TRIPLESTORE_URL}
       - OPAL_TRIPLESTORE_USERNAME=${OPAL_TRIPLESTORE_USERNAME}
       - OPAL_TRIPLESTORE_PASSWORD=${OPAL_TRIPLESTORE_PASSWORD}
     depends_on:
@@ -142,7 +174,7 @@ services:
   elasticsearch-writer:
     image: mnafshin/opal-elasticsearch-writer:latest
     volumes:
-      - /var/log/converter/:/var/log/converter/
+      - logvolume1:/var/log/converter/
     environment:
       - RABBITMQ_ADDRESS=rabbitmq
       - RABBITMQ_PORT=5672
@@ -159,7 +191,7 @@ services:
   webservices:
     image: mnafshin/opal-webservices:latest
     volumes:
-      - /var/log/converter/:/var/log/converter/
+      - logvolume1:/var/log/converter/
     environment:
       - RABBITMQ_ADDRESS=rabbitmq
       - RABBITMQ_PORT=5672
@@ -178,3 +210,11 @@ services:
       - dataset-fetcher
       - opal-confirm-conversion-service
       - quality-metrics-service
+volumes:
+  rabbitmqdata:
+  esdata01:
+  eslog:
+  mysqldata:
+  logvolume1:
+  logvolume2:
+  logvolume3:
