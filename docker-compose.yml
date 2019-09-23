@@ -24,10 +24,9 @@ services:
       - esdata01:/usr/share/elasticsearch/data
       - eslog:/var/log/elasticsearch/
     environment:
-      - ES_JAVA_OPTS=-Xms4g -Xmx4g
+      - ES_JAVA_OPTS=${ELASTICSEARCH_JAVA_OPTS}
       - discovery.type=single-node
       - bootstrap.memory_lock=true
-#      - xpack.security.enabled=true
     ulimits:
       memlock:
         soft: -1
@@ -44,6 +43,11 @@ services:
     image: logstash:7.3.2
     volumes:
       - ./logstash_AMQP.conf:/config-dir/logstash.conf
+    environment:
+      - RABBITMQ_USERNAME=${RABBITMQ_USERNAME}
+      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
+      - XPACK_MONITORING_ENABLED=false
+      - XPACK_MONITORING_ELASTICSEARCH_HOSTS=""
     ports:
       - 5000:5000
     command: logstash -f /config-dir/logstash.conf
@@ -164,6 +168,8 @@ services:
       - OPAL_TRIPLESTORE_URL=${OPAL_TRIPLESTORE_URL}
       - OPAL_TRIPLESTORE_USERNAME=${OPAL_TRIPLESTORE_USERNAME}
       - OPAL_TRIPLESTORE_PASSWORD=${OPAL_TRIPLESTORE_PASSWORD}
+      - MIN_CONCURRENCY_WRITER=3
+      - MAX_CONCURRENCY_WRITER=5
     depends_on:
       - rabbitmq
       - logstash

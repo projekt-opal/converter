@@ -13,8 +13,8 @@ spring:
     username: ${RABBITMQ_USERNAME}
     password: ${RABBITMQ_PASSWORD}
     listener:
-      simple.max-concurrency: 2
-      simple.concurrency: 1
+      simple.max-concurrency: ${MAX_CONCURRENCY_WRITER:2}
+      simple.concurrency: ${MIN_CONCURRENCY_WRITER:1}
 
 eureka:
   client:
