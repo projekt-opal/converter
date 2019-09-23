@@ -49,7 +49,6 @@
 		<module>quality-metrics-service</module>
 		<module>triplestore-writer</module>
 		<module>elasticsearch-writer</module>
-		<module>webservices</module>
 	</modules>
 
 </project>
