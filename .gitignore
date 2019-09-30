@@ -83,3 +83,13 @@ secrets.yml
 /triplestore-writer/mvnw
 /triplestore-writer/mvnw.cmd
 /triplestore-writer/.mvn/
+/.env
+/elasticsearch-writer/mvnw.cmd
+/elasticsearch-writer/mvnw
+/elasticsearch-writer/.mvn/
+/webservices/mvnw
+/webservices/mvnw.cmd
+/webservices/.mvn/
+/config-server/.mvn/
+/config-server/mvnw
+/config-server/mvnw.cmd

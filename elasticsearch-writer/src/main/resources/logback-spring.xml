@@ -5,9 +5,9 @@
     <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
     <appender name="FILE"
               class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>/var/log/converter/opal-confirm-conversion-service.log</file>
+        <file>/var/log/converter/elasticsearch-writer.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>/var/log/converter/opal-confirm-conversion-service.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>/var/log/converter/elasticsearch-writer.%d{yyyy-MM-dd}.log</fileNamePattern>
             <maxHistory>10</maxHistory>
             <totalSizeCap>1GB</totalSizeCap>
         </rollingPolicy>
@@ -28,7 +28,7 @@
                 <pattern>
                     <pattern>
                         {
-                        "appName": "opal-confirm-conversion-service"
+                        "appName": "elasticsearch-writer"
                         }
                     </pattern>
                 </pattern>
@@ -43,7 +43,7 @@
         <port>${RABBITMQ_PORT}</port>
         <username>${RABBITMQ_USERNAME}</username>
         <password>${RABBITMQ_PASSWORD}</password>
-        <applicationId>opal-confirm-conversion-service</applicationId>
+        <applicationId>elasticsearch-writer</applicationId>
         <routingKeyPattern>#</routingKeyPattern>
         <declareExchange>true</declareExchange>
         <exchangeType>direct</exchangeType>
@@ -60,16 +60,4 @@
         <appender-ref ref="FILE"/>
         <appender-ref ref="AMQP"/>
     </root>
-
-    <logger name="org.apache.jena.riot" additivity="false" level="ERROR">
-        <appender-ref ref="CONSOLE" />
-        <appender-ref ref="FILE" />
-        <appender-ref ref="AMQP"/>
-    </logger>
-    <logger name="org.apache.jena.sparql" additivity="false" level="ERROR">
-        <appender-ref ref="CONSOLE" />
-        <appender-ref ref="FILE" />
-        <appender-ref ref="AMQP"/>
-    </logger>
-
 </configuration>

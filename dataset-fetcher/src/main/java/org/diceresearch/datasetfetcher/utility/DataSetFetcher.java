@@ -74,6 +74,7 @@ public class DataSetFetcher implements CredentialsProvider, Runnable {
         String tripleStoreUsername = portal.getUsername();
         String tripleStorePassword = portal.getPassword();
 
+        logger.info("TripleStore info: {} {}", kv("URL", tripleStoreURL), kv("username", tripleStoreUsername));
 
         credentials = new UsernamePasswordCredentials(tripleStoreUsername, tripleStorePassword);
 
@@ -283,11 +284,6 @@ public class DataSetFetcher implements CredentialsProvider, Runnable {
         }
         return cnt;
     }
-
-//    DataSetUrlFetcher setPortalName(String portalName) {
-//        this.portalName = portalName;
-//        return this;
-//    }
 
     public void setCanceled(boolean canceled) {
         isCanceled = canceled;

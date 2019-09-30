@@ -7,7 +7,7 @@
               class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>/var/log/converter/quality-metrics-service.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>quality-metrics-service.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>/var/log/converter/quality-metrics-service.%d{yyyy-MM-dd}.log</fileNamePattern>
             <maxHistory>10</maxHistory>
             <totalSizeCap>1GB</totalSizeCap>
         </rollingPolicy>
@@ -19,7 +19,7 @@
 
     <appender name="AMQP"
               class="org.springframework.amqp.rabbit.logback.AmqpAppender">
-        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">-->
+        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
             <providers>
                 <mdc/>
                 <context/>
@@ -44,7 +44,7 @@
         <username>${RABBITMQ_USERNAME}</username>
         <password>${RABBITMQ_PASSWORD}</password>
         <applicationId>quality-metrics-service</applicationId>
-        <routingKeyPattern>quality-metrics-service</routingKeyPattern>
+        <routingKeyPattern>#</routingKeyPattern>
         <declareExchange>true</declareExchange>
         <exchangeType>direct</exchangeType>
         <exchangeName>ex_logstash</exchangeName>
@@ -60,4 +60,16 @@
         <appender-ref ref="FILE"/>
         <appender-ref ref="AMQP"/>
     </root>
+
+    <logger name="org.apache.jena.riot" additivity="false" level="ERROR">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="FILE" />
+        <appender-ref ref="AMQP"/>
+    </logger>
+    <logger name="org.apache.jena.sparql" additivity="false" level="ERROR">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="FILE" />
+        <appender-ref ref="AMQP"/>
+    </logger>
+
 </configuration>
