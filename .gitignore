@@ -90,3 +90,6 @@ secrets.yml
 /webservices/mvnw
 /webservices/mvnw.cmd
 /webservices/.mvn/
+/config-server/.mvn/
+/config-server/mvnw
+/config-server/mvnw.cmd
