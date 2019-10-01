@@ -77,7 +77,7 @@ services:
     ports:
       - 8888:8888
     environment:
-      - CONFIG_REPO=https://github.com/projekt-opal/config-repo.git
+      - CONFIG_REPO=https://github.com/projekt-opal/converter-configuration.git
       - CONFIG_REPO_DEFAULT_BRANCH=master
       - EUREKA_URL=http://discovery-server:8761/eureka/
   dataset-fetcher:
