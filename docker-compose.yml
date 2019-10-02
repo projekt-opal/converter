@@ -72,6 +72,14 @@ services:
     image: mnafshin/opal-discovery-server:latest
     ports:
       - 8761:8761
+  config-server:
+    image: mnafshin/opal-config-server:latest
+    ports:
+      - 8888:8888
+    environment:
+      - CONFIG_REPO=https://github.com/projekt-opal/converter-configuration.git
+      - CONFIG_REPO_DEFAULT_BRANCH=master
+      - EUREKA_URL=http://discovery-server:8761/eureka/
   dataset-fetcher:
     image: mnafshin/opal-dataset-fetcher:latest
     ports:
@@ -91,6 +99,7 @@ services:
       - rabbitmq
       - logstash
       - discovery-server
+      - config-server
       - mysql
   opal-confirm-conversion-service:
     image: mnafshin/opal-confirm-conversion-service
@@ -106,6 +115,7 @@ services:
       - rabbitmq
       - logstash
       - discovery-server
+      - config-server
       - dataset-fetcher
   quality-metrics-service:
     image: mnafshin/opal-quality-metrics-service:latest
@@ -121,6 +131,7 @@ services:
       - rabbitmq
       - logstash
       - discovery-server
+      - config-server
       - dataset-fetcher
       - opal-confirm-conversion-service
   quality-metrics-service_replica_1:
@@ -137,6 +148,7 @@ services:
       - rabbitmq
       - logstash
       - discovery-server
+      - config-server
       - dataset-fetcher
       - opal-confirm-conversion-service
   quality-metrics-service_replica_2:
@@ -153,6 +165,7 @@ services:
       - rabbitmq
       - logstash
       - discovery-server
+      - config-server
       - dataset-fetcher
       - opal-confirm-conversion-service
   triplestore-writer:
@@ -174,6 +187,7 @@ services:
       - rabbitmq
       - logstash
       - discovery-server
+      - config-server
       - dataset-fetcher
       - opal-confirm-conversion-service
       - quality-metrics-service
@@ -191,28 +205,7 @@ services:
       - rabbitmq
       - logstash
       - discovery-server
-      - dataset-fetcher
-      - opal-confirm-conversion-service
-      - quality-metrics-service
-  webservices:
-    image: mnafshin/opal-webservices:latest
-    volumes:
-      - logvolume1:/var/log/converter/
-    environment:
-      - RABBITMQ_ADDRESS=rabbitmq
-      - RABBITMQ_PORT=5672
-      - RABBITMQ_USERNAME=${RABBITMQ_USERNAME}
-      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
-      - OPAL_TRIPLESTORE_URL=fuseki
-      - OPAL_TRIPLESTORE_USERNAME=${OPAL_TRIPLESTORE_USERNAME}
-      - OPAL_TRIPLESTORE_PASSWORD=${OPAL_TRIPLESTORE_PASSWORD}
-      - EUREKA_URL=http://discovery-server:8761/eureka/
-    ports:
-      - 8080:8080
-    depends_on:
-      - rabbitmq
-      - logstash
-      - discovery-server
+      - config-server
       - dataset-fetcher
       - opal-confirm-conversion-service
       - quality-metrics-service

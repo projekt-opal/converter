@@ -7,7 +7,7 @@
               class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>/var/log/converter/elasticsearch-writer.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>elasticsearch-writer.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>/var/log/converter/elasticsearch-writer.%d{yyyy-MM-dd}.log</fileNamePattern>
             <maxHistory>10</maxHistory>
             <totalSizeCap>1GB</totalSizeCap>
         </rollingPolicy>

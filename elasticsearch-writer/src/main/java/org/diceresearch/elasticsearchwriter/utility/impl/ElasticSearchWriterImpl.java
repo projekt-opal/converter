@@ -1,7 +1,6 @@
 package org.diceresearch.elasticsearchwriter.utility.impl;
 
 import org.apache.http.HttpHost;
-import org.apache.http.protocol.HTTP;
 import org.apache.jena.rdf.model.*;
 import org.apache.jena.vocabulary.DCAT;
 import org.apache.jena.vocabulary.DCTerms;
@@ -21,11 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
-import java.io.File;
-import java.io.FileInputStream;
 import java.security.MessageDigest;
-
 import static net.logstash.logback.argument.StructuredArguments.kv;
 
 @Component
