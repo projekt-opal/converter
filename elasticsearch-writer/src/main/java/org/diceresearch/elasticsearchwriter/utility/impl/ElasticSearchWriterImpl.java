@@ -24,6 +24,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.security.MessageDigest;
 
 import static net.logstash.logback.argument.StructuredArguments.kv;
 
@@ -51,6 +52,8 @@ public class ElasticSearchWriterImpl implements ElasticSearchWriter {
             if (resIterator.hasNext()) {
                 Resource dataSet = resIterator.nextResource();
                 logger.info("{}", kv("datasetUrl", dataSet.getURI()));
+                MessageDigest md = MessageDigest.getInstance("MD5");
+                byte[] datasetHashId = md.digest(dataSet.getURI().getBytes());
                 JSONObject jsonDatasetObject = new JSONObject();
 
                 StmtIterator titleIterator = model.listStatements(dataSet, DCTerms.title, (RDFNode)null);
@@ -122,7 +125,7 @@ public class ElasticSearchWriterImpl implements ElasticSearchWriter {
                 JSONArray temporalInfo = getJSONArray(model, dataSet, DCTerms.temporal, DCTerms.temporal.getLocalName());
                 jsonDatasetObject.put("temporalInfo", temporalInfo);
 
-                IndexRequest indexRequest = new IndexRequest("opal-catalog-new1", "dataset", dataSet.getLocalName()).
+                IndexRequest indexRequest = new IndexRequest("opal-catalog-new1", "dataset", datasetHashId.toString()).
                         source(jsonDatasetObject, XContentType.JSON);
                 IndexResponse indexResponse = restClient.index(indexRequest, RequestOptions.DEFAULT);
                 restClient.close();

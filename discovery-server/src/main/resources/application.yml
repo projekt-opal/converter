@@ -5,8 +5,18 @@ spring:
 server:
   port: ${PORT:8761}
 
+<<<<<<< HEAD
 client:
   registerWithEureka: true
   fetchRegistry: true
   serviceUrl:
     defaultZone: ${EUREKA_URL:http://localhost:8761/eureka/}
+=======
+eureka:
+  client:
+    register-with-eureka: false
+    fetch-registry: false
+
+logging:
+  file: /var/log/converter/discovery-server.log
+>>>>>>> f9aece26389c7ab1cd666ef1d33d64890e08665f

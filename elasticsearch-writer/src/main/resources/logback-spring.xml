@@ -44,7 +44,7 @@
         <username>${RABBITMQ_USERNAME}</username>
         <password>${RABBITMQ_PASSWORD}</password>
         <applicationId>elasticsearch-writer</applicationId>
-        <routingKeyPattern>elasticsearch-writer</routingKeyPattern>
+        <routingKeyPattern>#</routingKeyPattern>
         <declareExchange>true</declareExchange>
         <exchangeType>direct</exchangeType>
         <exchangeName>ex_logstash</exchangeName>
