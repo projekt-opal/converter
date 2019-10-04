@@ -20,6 +20,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import javax.xml.bind.DatatypeConverter;
 import java.security.MessageDigest;
 import static net.logstash.logback.argument.StructuredArguments.kv;
 
@@ -49,6 +51,7 @@ public class ElasticSearchWriterImpl implements ElasticSearchWriter {
                 logger.info("{}", kv("datasetUrl", dataSet.getURI()));
                 MessageDigest md = MessageDigest.getInstance("MD5");
                 byte[] datasetHashId = md.digest(dataSet.getURI().getBytes());
+                String datasetHashedString = DatatypeConverter.printHexBinary(datasetHashId).toUpperCase();
                 JSONObject jsonDatasetObject = new JSONObject();
 
                 StmtIterator titleIterator = model.listStatements(dataSet, DCTerms.title, (RDFNode)null);
@@ -120,7 +123,7 @@ public class ElasticSearchWriterImpl implements ElasticSearchWriter {
                 JSONArray temporalInfo = getJSONArray(model, dataSet, DCTerms.temporal, DCTerms.temporal.getLocalName());
                 jsonDatasetObject.put("temporalInfo", temporalInfo);
 
-                IndexRequest indexRequest = new IndexRequest("opal-catalog-new1", "dataset", datasetHashId.toString()).
+                IndexRequest indexRequest = new IndexRequest("opal", "_doc", datasetHashedString).
                         source(jsonDatasetObject, XContentType.JSON);
                 IndexResponse indexResponse = restClient.index(indexRequest, RequestOptions.DEFAULT);
                 restClient.close();
