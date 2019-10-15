@@ -126,6 +126,7 @@ public class ElasticSearchWriterImpl implements ElasticSearchWriter {
                 IndexRequest indexRequest = new IndexRequest("opal", "_doc", datasetHashedString).
                         source(jsonDatasetObject, XContentType.JSON);
                 IndexResponse indexResponse = restClient.index(indexRequest, RequestOptions.DEFAULT);
+                logger.debug("Elastic Writer: {}",indexResponse.toString());
                 restClient.close();
 
             }
