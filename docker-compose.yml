@@ -84,6 +84,8 @@ services:
     build: dataset-fetcher
     ports:
       - 8001:8001
+    volumes:
+      - logvolume1:/var/log/converter/
     environment:
       - RABBITMQ_ADDRESS=rabbitmq
       - RABBITMQ_PORT=5672
