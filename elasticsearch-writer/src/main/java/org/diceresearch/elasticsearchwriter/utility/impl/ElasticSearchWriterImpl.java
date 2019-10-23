@@ -21,9 +21,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import javax.xml.bind.DatatypeConverter;
 import java.io.IOException;
 import java.security.MessageDigest;
+
 import static net.logstash.logback.argument.StructuredArguments.kv;
 
 @Component
@@ -39,66 +41,71 @@ public class ElasticSearchWriterImpl implements ElasticSearchWriter {
 
     private RestHighLevelClient restClient;
 
+    @PostConstruct
+    public void init() {
+        restClient = new RestHighLevelClient(RestClient.builder
+                (new HttpHost(ELASTIC_SEARCH_URL, Integer.parseInt(ELASTIC_SEARCH_PORT), "http")));
+    }
+
     @Override
     public void write(byte[] bytes) {
         Model model = RdfSerializerDeserializer.deserialize(bytes);
-        restClient = new RestHighLevelClient(RestClient.builder
-                (new HttpHost(ELASTIC_SEARCH_URL,   Integer.parseInt(ELASTIC_SEARCH_PORT), "http")));
+        Resource dataSet = null;
 
         try {
             ResIterator resIterator = model.listResourcesWithProperty(RDF.type, DCAT.Dataset);
             if (resIterator.hasNext()) {
-                Resource dataSet = resIterator.nextResource();
+                dataSet = resIterator.nextResource();
                 logger.info("{}", kv("datasetUrl", dataSet.getURI()));
                 MessageDigest md = MessageDigest.getInstance("MD5");
                 byte[] datasetHashId = md.digest(dataSet.getURI().getBytes());
                 String datasetHashedString = DatatypeConverter.printHexBinary(datasetHashId).toUpperCase();
                 JSONObject jsonDatasetObject = new JSONObject();
 
-                StmtIterator titleIterator = model.listStatements(dataSet, DCTerms.title, (RDFNode)null);
-                if(titleIterator.hasNext()) {
+                StmtIterator titleIterator = model.listStatements(dataSet, DCTerms.title, (RDFNode) null);
+                if (titleIterator.hasNext()) {
                     Statement titleStatement = titleIterator.nextStatement();
                     jsonDatasetObject.put(titleStatement.getPredicate().getLocalName(), titleStatement.getObject().asLiteral().getValue());
                 }
 
-                StmtIterator descIterator = model.listStatements(dataSet, DCTerms.description, (RDFNode)null);
-                if(descIterator.hasNext()) {
+                StmtIterator descIterator = model.listStatements(dataSet, DCTerms.description, (RDFNode) null);
+                if (descIterator.hasNext()) {
                     Statement descStatement = descIterator.nextStatement();
                     jsonDatasetObject.put(descStatement.getPredicate().getLocalName(), descStatement.getObject().asLiteral().getValue());
                 }
 
-                StmtIterator dateIssuedIterator = model.listStatements(dataSet, DCTerms.issued, (RDFNode)null);
-                if(dateIssuedIterator.hasNext()){
+                StmtIterator dateIssuedIterator = model.listStatements(dataSet, DCTerms.issued, (RDFNode) null);
+                if (dateIssuedIterator.hasNext()) {
                     Statement dateIssuedStatement = dateIssuedIterator.nextStatement();
                     jsonDatasetObject.put(dateIssuedStatement.getPredicate().getLocalName(), dateIssuedStatement.getObject().asLiteral().getValue());
                 }
 
-                StmtIterator dateModifiedIterator = model.listStatements(dataSet, DCTerms.modified, (RDFNode)null);
-                if(dateModifiedIterator.hasNext()){
+                StmtIterator dateModifiedIterator = model.listStatements(dataSet, DCTerms.modified, (RDFNode) null);
+                if (dateModifiedIterator.hasNext()) {
                     Statement dateModifiedStatement = dateModifiedIterator.nextStatement();
                     jsonDatasetObject.put(dateModifiedStatement.getPredicate().getLocalName(), dateModifiedStatement.getObject().asLiteral().getValue());
                 }
 
-                StmtIterator identifierIterator = model.listStatements(dataSet, DCTerms.identifier, (RDFNode)null);
-                if(identifierIterator.hasNext()){
+                StmtIterator identifierIterator = model.listStatements(dataSet, DCTerms.identifier, (RDFNode) null);
+                if (identifierIterator.hasNext()) {
                     Statement identifierStatement = identifierIterator.nextStatement();
-                    jsonDatasetObject.put(identifierStatement.getPredicate().getLocalName(), identifierStatement.getObject().asLiteral().getValue());
+                    jsonDatasetObject.put(identifierStatement.getPredicate().getLocalName(), identifierStatement.getObject().toString());
                 }
 
-                StmtIterator accrualPeriodicityIterator = model.listStatements(dataSet, DCTerms.accrualPeriodicity, (RDFNode)null);
-                if(accrualPeriodicityIterator.hasNext()){
+                StmtIterator accrualPeriodicityIterator = model.listStatements(dataSet, DCTerms.accrualPeriodicity, (RDFNode) null);
+                if (accrualPeriodicityIterator.hasNext()) {
                     Statement accrualPeriodicityStatement = accrualPeriodicityIterator.nextStatement();
-                    jsonDatasetObject.put(accrualPeriodicityStatement.getPredicate().getLocalName(), accrualPeriodicityStatement.getObject().asLiteral().getValue());
+                    jsonDatasetObject.put(accrualPeriodicityStatement.getPredicate().getLocalName(), accrualPeriodicityStatement.getObject().toString());
                 }
 
-                StmtIterator landingPageIterator = model.listStatements(dataSet, DCAT.landingPage, (RDFNode)null);
-                if(landingPageIterator.hasNext()){
+                StmtIterator landingPageIterator = model.listStatements(dataSet, DCAT.landingPage, (RDFNode) null);
+                if (landingPageIterator.hasNext()) {
                     Statement landingPageStatement = landingPageIterator.nextStatement();
                     jsonDatasetObject.put(landingPageStatement.getPredicate().getLocalName(), landingPageStatement.getObject().toString());
                 }
 
-                StmtIterator languageIterator = model.listStatements(dataSet, DCTerms.language, (RDFNode)null);
-                if(languageIterator.hasNext()){
+                StmtIterator languageIterator = model.listStatements(dataSet, DCTerms.language, (RDFNode) null);
+                if (languageIterator.hasNext()) {
                     Statement languageStatement = languageIterator.nextStatement();
                     jsonDatasetObject.put(languageStatement.getPredicate().getLocalName(), languageStatement.getObject().toString());
                 }
@@ -127,32 +134,27 @@ public class ElasticSearchWriterImpl implements ElasticSearchWriter {
                 IndexRequest indexRequest = new IndexRequest("opal", "_doc", datasetHashedString).
                         source(jsonDatasetObject, XContentType.JSON);
                 IndexResponse indexResponse = restClient.index(indexRequest, RequestOptions.DEFAULT);
-                logger.debug("Elastic Writer: {}",indexResponse.toString());
+                logger.debug("Elastic Writer: {}", indexResponse.toString());
 
             }
         } catch (Exception exception) {
-            logger.error("exception ", exception);
-        }
-        finally {
-            try {
-                restClient.close();
-            } catch (IOException e) {
-                logger.error("exception ", e);
-            }
-
+            if (dataSet != null)
+                logger.error("exception {}", kv("datasetUrl", dataSet.getURI()), exception);
+            else
+                logger.error("exception", exception);
         }
     }
 
-    private JSONArray getJSONArray(Model model, Resource dataSet, Property type, String field){
+    private JSONArray getJSONArray(Model model, Resource dataSet, Property type, String field) {
 
-        StmtIterator propertyIterator = model.listStatements(dataSet, type, (RDFNode)null);
+        StmtIterator propertyIterator = model.listStatements(dataSet, type, (RDFNode) null);
         JSONArray propertyArray = new JSONArray();
-        while (propertyIterator.hasNext()){
+        while (propertyIterator.hasNext()) {
             Statement propertyStatement = propertyIterator.nextStatement();
             JSONObject jsonObject = new JSONObject();
             jsonObject.put(field, propertyStatement.getObject().toString());
 
-            if(propertyStatement.getObject().isResource()) {
+            if (propertyStatement.getObject().isResource()) {
 
                 StmtIterator propDetailsIterator = model.listStatements(propertyStatement.getObject().asResource(), null, (RDFNode) null);
 
@@ -161,10 +163,10 @@ public class ElasticSearchWriterImpl implements ElasticSearchWriter {
                     if (propDetailStatement.getObject().isResource())
                         jsonObject.put(propDetailStatement.getPredicate().getLocalName().toString(), propDetailStatement.getObject().toString());
                     else {
-                        if(propDetailStatement.getPredicate().toString().startsWith("http://www.w3.org/ns/locn#geometry"))
+                        if (propDetailStatement.getPredicate().toString().startsWith("http://www.w3.org/ns/locn#geometry"))
                             jsonObject.put(propDetailStatement.getPredicate().getLocalName().toString(), propDetailStatement.getObject().asLiteral().getString());
 
-                        else if (propDetailStatement.getPredicate().toString().startsWith("http://schema.org/endDate")||
+                        else if (propDetailStatement.getPredicate().toString().startsWith("http://schema.org/endDate") ||
                                 propDetailStatement.getPredicate().toString().startsWith("http://schema.org/startDate"))
                             jsonObject.put(propDetailStatement.getPredicate().getLocalName().toString(), propDetailStatement.getObject().asLiteral().getValue().toString());
                         else
@@ -172,7 +174,7 @@ public class ElasticSearchWriterImpl implements ElasticSearchWriter {
                     }
                 }
             }
-                
+
             propertyArray.add(jsonObject);
         }
         return propertyArray;
