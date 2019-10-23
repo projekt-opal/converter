@@ -1,3 +1,3 @@
 #!/bin/bash
-sleep 60
-java -jar -Dspring.profiles.active=prod ./app.jar
+sleep 10
+java -jar -Dspring.profiles.active=prod ./dataset-fetcher.jar

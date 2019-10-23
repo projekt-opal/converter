@@ -1,3 +1,3 @@
 #!/bin/bash
-sleep 60
-java -jar ./app.jar
+sleep 10
+java -jar ./elsticsearch-writer.jar
