@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.xml.bind.DatatypeConverter;
+import java.io.IOException;
 import java.security.MessageDigest;
 import static net.logstash.logback.argument.StructuredArguments.kv;
 
@@ -127,11 +128,18 @@ public class ElasticSearchWriterImpl implements ElasticSearchWriter {
                         source(jsonDatasetObject, XContentType.JSON);
                 IndexResponse indexResponse = restClient.index(indexRequest, RequestOptions.DEFAULT);
                 logger.debug("Elastic Writer: {}",indexResponse.toString());
-                restClient.close();
 
             }
         } catch (Exception exception) {
-            logger.error(exception.getMessage());
+            logger.error("exception ", exception);
+        }
+        finally {
+            try {
+                restClient.close();
+            } catch (IOException e) {
+                logger.error("exception ", e);
+            }
+
         }
     }
 
