@@ -1,4 +1,4 @@
-version: '3.2'
+version: '2.4'
 
 services:
   rabbitmq:
@@ -69,21 +69,23 @@ services:
       timeout: 20s
       retries: 30
   discovery-server:
-    image: mnafshin/opal-discovery-server:latest
+    build: discovery-server
     ports:
       - 8761:8761
   config-server:
-    image: mnafshin/opal-config-server:latest
+    build: config-server
     ports:
       - 8888:8888
     environment:
-      - CONFIG_REPO=https://github.com/projekt-opal/config-repo.git
+      - CONFIG_REPO=https://github.com/projekt-opal/converter-configuration.git
       - CONFIG_REPO_DEFAULT_BRANCH=master
       - EUREKA_URL=http://discovery-server:8761/eureka/
   dataset-fetcher:
-    image: mnafshin/opal-dataset-fetcher:latest
+    build: dataset-fetcher
     ports:
       - 8001:8001
+    volumes:
+      - logvolume1:/var/log/converter/
     environment:
       - RABBITMQ_ADDRESS=rabbitmq
       - RABBITMQ_PORT=5672
@@ -102,7 +104,7 @@ services:
       - config-server
       - mysql
   opal-confirm-conversion-service:
-    image: mnafshin/opal-confirm-conversion-service
+    build: opal-confirm-conversion-service
     volumes:
       - logvolume1:/var/log/converter/
     environment:
@@ -118,7 +120,7 @@ services:
       - config-server
       - dataset-fetcher
   quality-metrics-service:
-    image: mnafshin/opal-quality-metrics-service:latest
+    build: quality-metrics-service
     volumes:
       - logvolume1:/var/log/converter/
     environment:
@@ -135,7 +137,7 @@ services:
       - dataset-fetcher
       - opal-confirm-conversion-service
   quality-metrics-service_replica_1:
-    image: mnafshin/opal-quality-metrics-service:latest
+    build: quality-metrics-service
     volumes:
       - logvolume2:/var/log/converter/
     environment:
@@ -152,7 +154,7 @@ services:
       - dataset-fetcher
       - opal-confirm-conversion-service
   quality-metrics-service_replica_2:
-    image: mnafshin/opal-quality-metrics-service:latest
+    build: quality-metrics-service
     volumes:
       - logvolume3:/var/log/converter/
     environment:
@@ -169,7 +171,7 @@ services:
       - dataset-fetcher
       - opal-confirm-conversion-service
   triplestore-writer:
-    image: mnafshin/opal-triplestore-writer:latest
+    build: triplestore-writer
     volumes:
       - logvolume1:/var/log/converter/
     environment:
@@ -182,7 +184,7 @@ services:
       - OPAL_TRIPLESTORE_USERNAME=${OPAL_TRIPLESTORE_USERNAME}
       - OPAL_TRIPLESTORE_PASSWORD=${OPAL_TRIPLESTORE_PASSWORD}
       - MIN_CONCURRENCY_WRITER=3
-      - MAX_CONCURRENCY_WRITER=5
+      - MAX_CONCURRENCY_WRITER=3
     depends_on:
       - rabbitmq
       - logstash
@@ -192,7 +194,7 @@ services:
       - opal-confirm-conversion-service
       - quality-metrics-service
   elasticsearch-writer:
-    image: mnafshin/opal-elasticsearch-writer:latest
+    build: elasticsearch-writer
     volumes:
       - logvolume1:/var/log/converter/
     environment:
@@ -201,6 +203,8 @@ services:
       - RABBITMQ_USERNAME=${RABBITMQ_USERNAME}
       - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
       - EUREKA_URL=http://discovery-server:8761/eureka/
+      - OPAL_ELASTICSEARCH_URL=opaldata.cs.upb.de
+      - OPAL_ELASTICSEARCH_PORT=9200
     depends_on:
       - rabbitmq
       - logstash

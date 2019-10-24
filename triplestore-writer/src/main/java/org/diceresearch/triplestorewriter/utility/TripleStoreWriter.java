@@ -57,10 +57,11 @@ public class TripleStoreWriter implements CredentialsProvider {
 
     private void writeModel(byte[] bytes) {
         Model model = RdfSerializerDeserializer.deserialize(bytes);
+        Resource dataSet = null;
         try {
             ResIterator resIterator = model.listResourcesWithProperty(RDF.type, DCAT.Dataset);
             if (resIterator.hasNext()) {
-                Resource dataSet = resIterator.nextResource();
+                dataSet = resIterator.nextResource();
                 logger.info("{}", kv("datasetUrl", dataSet.getURI()));
             }
         } catch (Exception ignored) {
@@ -71,7 +72,7 @@ public class TripleStoreWriter implements CredentialsProvider {
         StringBuilder triples = new StringBuilder();
         while (stmtIterator.hasNext()) {
             if (cnt > 50) {
-                runWriteQuery(triples, mp);
+                runWriteQuery(triples, mp, dataSet);
                 triples = new StringBuilder();
                 mp = new QuerySolutionMap();
                 cnt = 0;
@@ -93,11 +94,11 @@ public class TripleStoreWriter implements CredentialsProvider {
                     .append(p).append(' ')
                     .append(o).append(" . ");
         }
-        runWriteQuery(triples, mp);
+        runWriteQuery(triples, mp, dataSet);
     }
 
 
-    private void runWriteQuery(StringBuilder triples, QuerySolutionMap mp) {
+    private void runWriteQuery(StringBuilder triples, QuerySolutionMap mp, Resource dataSet) {
         try {
             ParameterizedSparqlString pss = new ParameterizedSparqlString("INSERT DATA { GRAPH <http://projekt-opal.de> {" + triples + "} }");
             pss.setParams(mp);
@@ -107,7 +108,7 @@ public class TripleStoreWriter implements CredentialsProvider {
             logger.debug("writing query is: {}", query);
             runInsertQuery(query);
         } catch (Exception e) {
-            logger.error("An error occurred in writing to TripleStore ", e);
+            logger.error("{}", kv("dataSet+ ", dataSet), e);
         }
     }
 

@@ -1,3 +1,3 @@
 FROM openjdk:8
-COPY target/discovery-server-0.0.1.jar ./app.jar
-ENTRYPOINT ["java", "-jar", "/app.jar"]
+COPY target/discovery-server-0.0.1.jar ./discovery-server.jar
+ENTRYPOINT ["java", "-jar", "/discovery-server.jar"]

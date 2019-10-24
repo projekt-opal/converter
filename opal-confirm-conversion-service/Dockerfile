@@ -1,5 +1,5 @@
 FROM openjdk:8
-COPY target/opal-confirm-conversion-service-0.0.1.jar ./app.jar
+COPY target/opal-confirm-conversion-service-0.0.1.jar ./opal-confirm-conversion-service.jar
 COPY run.sh /run.sh
 RUN ["chmod", "+x", "./run.sh"]
 ENTRYPOINT ["./run.sh"]
