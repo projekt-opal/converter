@@ -1,6 +1,7 @@
 package org.diceresearch.elasticsearchwriter.utility.impl;
 
 import org.apache.http.HttpHost;
+import org.apache.jena.base.Sys;
 import org.apache.jena.rdf.model.*;
 import org.apache.jena.vocabulary.DCAT;
 import org.apache.jena.vocabulary.DCTerms;
@@ -77,13 +78,13 @@ public class ElasticSearchWriterImpl implements ElasticSearchWriter {
                 StmtIterator dateIssuedIterator = model.listStatements(dataSet, DCTerms.issued, (RDFNode) null);
                 if (dateIssuedIterator.hasNext()) {
                     Statement dateIssuedStatement = dateIssuedIterator.nextStatement();
-                    jsonDatasetObject.put(dateIssuedStatement.getPredicate().getLocalName(), dateIssuedStatement.getObject().asLiteral().getValue());
+                    jsonDatasetObject.put(dateIssuedStatement.getPredicate().getLocalName(), dateIssuedStatement.getObject().asLiteral().getString());
                 }
 
                 StmtIterator dateModifiedIterator = model.listStatements(dataSet, DCTerms.modified, (RDFNode) null);
                 if (dateModifiedIterator.hasNext()) {
                     Statement dateModifiedStatement = dateModifiedIterator.nextStatement();
-                    jsonDatasetObject.put(dateModifiedStatement.getPredicate().getLocalName(), dateModifiedStatement.getObject().asLiteral().getValue());
+                    jsonDatasetObject.put(dateModifiedStatement.getPredicate().getLocalName(), dateModifiedStatement.getObject().asLiteral().getString());
                 }
 
                 StmtIterator identifierIterator = model.listStatements(dataSet, DCTerms.identifier, (RDFNode) null);
@@ -168,9 +169,9 @@ public class ElasticSearchWriterImpl implements ElasticSearchWriter {
 
                         else if (propDetailStatement.getPredicate().toString().startsWith("http://schema.org/endDate") ||
                                 propDetailStatement.getPredicate().toString().startsWith("http://schema.org/startDate"))
-                            jsonObject.put(propDetailStatement.getPredicate().getLocalName().toString(), propDetailStatement.getObject().asLiteral().getValue().toString());
+                            jsonObject.put(propDetailStatement.getPredicate().getLocalName().toString(), propDetailStatement.getObject().asLiteral().getString());
                         else
-                            jsonObject.put(propDetailStatement.getPredicate().getLocalName().toString(), propDetailStatement.getObject().asLiteral().getValue());
+                            jsonObject.put(propDetailStatement.getPredicate().getLocalName().toString(), propDetailStatement.getObject().asLiteral().getString());
                     }
                 }
             }
