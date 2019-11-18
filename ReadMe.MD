@@ -1,4 +1,7 @@
+# Introduction
 Converter project refines metadata and transform it into 5-Star Linked Open Data. This is a publish-subscribe microservice design project via spring cloud and java. Deployment of the project for now is based on docker-compose and scaling is possible manually. 
+
+## How to use
 To build the project you must creat .env file and put the needed environment variables there. Then, by running run.sh file it will build and setup the project. 
 ```
 RABBITMQ_ADDRESS=
