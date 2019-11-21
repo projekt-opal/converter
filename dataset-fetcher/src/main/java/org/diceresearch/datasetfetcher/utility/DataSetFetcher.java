@@ -1,13 +1,6 @@
 package org.diceresearch.datasetfetcher.utility;
 
 import com.google.common.collect.ImmutableMap;
-import org.aksw.jena_sparql_api.http.QueryExecutionFactoryHttp;
-import org.aksw.jena_sparql_api.retry.core.QueryExecutionFactoryRetry;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.Credentials;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.CredentialsProvider;
-import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.jena.query.ParameterizedSparqlString;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QuerySolution;
@@ -21,6 +14,7 @@ import org.apache.jena.vocabulary.RDF;
 import org.diceresearch.common.utility.rdf.RdfSerializerDeserializer;
 import org.diceresearch.datasetfetcher.messaging.SourceWithDynamicDestination;
 import org.diceresearch.datasetfetcher.model.Portal;
+import org.diceresearch.datasetfetcher.model.WorkingStatus;
 import org.diceresearch.datasetfetcher.repository.PortalRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,105 +31,90 @@ import static net.logstash.logback.argument.StructuredArguments.kv;
 
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class DataSetFetcher implements CredentialsProvider, Runnable {
+public class DataSetFetcher implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(DataSetFetcher.class);
 
-    private org.aksw.jena_sparql_api.core.QueryExecutionFactory qef;
-    private boolean isCanceled;
+    private final PortalRepository portalRepository;
+    private final QueryExecutionFactoryHttpProvider queryExecutionFactoryHttpProvider;
+    private final SourceWithDynamicDestination sourceWithDynamicDestination;
 
     private Resource portalResource;
-    private Portal portal;
-
-    private org.apache.http.auth.Credentials credentials;
-
-    private static final int PAGE_SIZE = 200;
+    private Integer portalId;
 
     private static final ImmutableMap<String, String> PREFIXES = ImmutableMap.<String, String>builder()
             .put("dcat", "http://www.w3.org/ns/dcat#")
             .put("dct", "http://purl.org/dc/terms/")
             .build();
 
-    private final PortalRepository portalRepository;
-    private final SourceWithDynamicDestination sourceWithDynamicDestination;
-
-
     @Autowired
-    public DataSetFetcher(PortalRepository portalRepository, SourceWithDynamicDestination sourceWithDynamicDestination) {
+    public DataSetFetcher(PortalRepository portalRepository, QueryExecutionFactoryHttpProvider queryExecutionFactoryHttpProvider, SourceWithDynamicDestination sourceWithDynamicDestination) {
         this.portalRepository = portalRepository;
+        this.queryExecutionFactoryHttpProvider = queryExecutionFactoryHttpProvider;
         this.sourceWithDynamicDestination = sourceWithDynamicDestination;
     }
 
     public void initialQueryExecutionFactory(Integer id) {
-        this.isCanceled = false;
+        this.portalId = id;
         Optional<Portal> optionalPortal = this.portalRepository.findById(id);
         if (!optionalPortal.isPresent()) return;
-        portal = optionalPortal.get();
-        String tripleStoreURL = portal.getQueryAddress();
-        String tripleStoreUsername = portal.getUsername();
-        String tripleStorePassword = portal.getPassword();
+        this.queryExecutionFactoryHttpProvider.initialQueryExecutionFactory(id);
 
-        logger.info("TripleStore info: {} {}", kv("URL", tripleStoreURL), kv("username", tripleStoreUsername));
-
-        credentials = new UsernamePasswordCredentials(tripleStoreUsername, tripleStorePassword);
-
+        Portal portal = optionalPortal.get();
+        portalRepository.save(portal);
         portalResource = ResourceFactory.createResource("http://projekt-opal.de/catalog/" + portal.getName());
-
-        HttpClientBuilder clientBuilder = HttpClientBuilder.create();
-        clientBuilder.setDefaultCredentialsProvider(this);
-        org.apache.http.impl.client.CloseableHttpClient client = clientBuilder.build();
-
-
-        qef = new QueryExecutionFactoryHttp(
-                String.format(tripleStoreURL, portal),
-                new org.apache.jena.sparql.core.DatasetDescription(), client);
-        qef = new QueryExecutionFactoryRetry(qef, 5, 1000);
-
     }
 
+    @Override
     public void run() {
         try {
+            Optional<Portal> optionalPortal = portalRepository.findById(portalId);
+            if (!optionalPortal.isPresent()) return;
+            Portal portal = optionalPortal.get();
             logger.info("Start fetching {}", kv("portal", portal.getName()));
 
             int totalNumberOfDataSets = getTotalNumberOfDataSets();
             logger.debug("Total number of datasets is {}", kv("Total #Datasets", totalNumberOfDataSets));
-            if (totalNumberOfDataSets == -1) {
-                throw new Exception("Cannot Query the TripleStore");
-            }
+            if (totalNumberOfDataSets == -1) throw new Exception("Cannot Query the TripleStore");
+
             int high = portal.getHigh();
             int lnf = portal.getLastNotFetched();
-
-            if (high == -1 || high > totalNumberOfDataSets) {
-                high = totalNumberOfDataSets;
-            }
-
+            if (high == -1 || high > totalNumberOfDataSets) high = totalNumberOfDataSets;
             portal.setHigh(high);
+            Integer step = portal.getStep();
+            portal.setWorkingStatus(WorkingStatus.RUNNING);
             portalRepository.save(portal);
 
-            for (int idx = lnf; idx < high; idx += PAGE_SIZE) {
-                if (isCanceled) {
-                    logger.info("fetching portal {} is cancelled", this.portal);
+            for (int idx = lnf; idx < high; idx += step) {
+                optionalPortal = portalRepository.findById(portalId);
+                if (!optionalPortal.isPresent()) return;
+                Portal finalPortal = optionalPortal.get();
+                if (finalPortal.getWorkingStatus().equals(WorkingStatus.PAUSED)) {
+                    logger.info("Fetching portal {} is cancelled", finalPortal);
                     return;
                 }
-                portal.setLastNotFetched(idx);
-                portalRepository.save(portal);
+                finalPortal.setLastNotFetched(idx);
+                portalRepository.save(finalPortal);
 
-                int min = Math.min(PAGE_SIZE, high - idx);
-                logger.info("Getting list datasets  {} : {}", idx, idx + min);
+                int min = Math.min(step, high - idx);
+                logger.info("Getting list dataSets  {} : {}", idx, idx + min);
                 List<Resource> listOfDataSets = getListOfDataSets(idx, min);
                 listOfDataSets
-//                        .subList(1,2) //only for debug
                         .parallelStream().forEach(resource -> {
                     Model graph = getGraph(resource);
                     byte[] serialize = RdfSerializerDeserializer.serialize(graph);
-                    sourceWithDynamicDestination.sendMessage(serialize, portal.getOutputQueue());
+                    sourceWithDynamicDestination.sendMessage(serialize, finalPortal.getOutputQueue());
                 });
             }
-            portal.setLastNotFetched(high);
-            portalRepository.save(portal);
-
-            logger.info("fetching portal {} finished", this.portal);
+            optionalPortal = portalRepository.findById(portalId);
+            if(optionalPortal.isPresent()) {
+                portal = optionalPortal.get();
+                portal.setLastNotFetched(high);
+                portal.setWorkingStatus(WorkingStatus.DONE);
+                portalRepository.save(portal);
+            }
+            logger.info("Fetching portal {} finished", portal);
         } catch (Exception e) {
-            logger.error("An Error occurred in converting portal {}, {}", portal, e);
+            logger.error("Exception in convert", e);
         }
     }
 
@@ -164,7 +143,8 @@ public class DataSetFetcher implements CredentialsProvider, Runnable {
             pss.setNsPrefixes(PREFIXES);
             pss.setParam("dataSet", dataSet);
 
-            try (QueryExecution queryExecution = qef.createQueryExecution(pss.asQuery())) {
+            try (QueryExecution queryExecution =
+                         this.queryExecutionFactoryHttpProvider.getQef().createQueryExecution(pss.asQuery())) {
                 ResultSet resultSet = queryExecution.execSelect();
                 while (resultSet.hasNext()) {
                     QuerySolution solution = resultSet.nextSolution();
@@ -205,7 +185,8 @@ public class DataSetFetcher implements CredentialsProvider, Runnable {
 
     private Model executeConstruct(ParameterizedSparqlString pss) {
         Model model = null;
-        try (QueryExecution queryExecution = qef.createQueryExecution(pss.asQuery())) {
+        try (QueryExecution queryExecution =
+                     this.queryExecutionFactoryHttpProvider.getQef().createQueryExecution(pss.asQuery())) {
             model = queryExecution.execConstruct();
         } catch (Exception ex) {
             logger.error("Exception in executing construct ", ex);
@@ -256,7 +237,8 @@ public class DataSetFetcher implements CredentialsProvider, Runnable {
 
     private List<Resource> getResources(ParameterizedSparqlString pss) {
         List<Resource> ret = new ArrayList<>();
-        try (QueryExecution queryExecution = qef.createQueryExecution(pss.asQuery())) {
+        try (QueryExecution queryExecution =
+                     this.queryExecutionFactoryHttpProvider.getQef().createQueryExecution(pss.asQuery())) {
             ResultSet resultSet = queryExecution.execSelect();
             while (resultSet.hasNext()) {
                 QuerySolution solution = resultSet.nextSolution();
@@ -272,7 +254,8 @@ public class DataSetFetcher implements CredentialsProvider, Runnable {
 
     private int getCount(ParameterizedSparqlString pss) {
         int cnt = -1;
-        try (QueryExecution queryExecution = qef.createQueryExecution(pss.asQuery())) {
+        try (QueryExecution queryExecution =
+                     this.queryExecutionFactoryHttpProvider.getQef().createQueryExecution(pss.asQuery())) {
             ResultSet resultSet = queryExecution.execSelect();
             while (resultSet.hasNext()) {
                 QuerySolution solution = resultSet.nextSolution();
@@ -285,22 +268,4 @@ public class DataSetFetcher implements CredentialsProvider, Runnable {
         return cnt;
     }
 
-    public void setCanceled(boolean canceled) {
-        isCanceled = canceled;
-    }
-
-    @Override
-    public void setCredentials(AuthScope authScope, Credentials credentials) {
-
-    }
-
-    @Override
-    public Credentials getCredentials(AuthScope authScope) {
-        return credentials;
-    }
-
-    @Override
-    public void clear() {
-
-    }
 }

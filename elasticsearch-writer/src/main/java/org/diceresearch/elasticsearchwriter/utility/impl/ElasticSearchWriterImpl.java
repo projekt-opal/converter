@@ -1,7 +1,6 @@
 package org.diceresearch.elasticsearchwriter.utility.impl;
 
 import org.apache.http.HttpHost;
-import org.apache.jena.base.Sys;
 import org.apache.jena.rdf.model.*;
 import org.apache.jena.vocabulary.DCAT;
 import org.apache.jena.vocabulary.DCTerms;
@@ -24,7 +23,6 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.xml.bind.DatatypeConverter;
-import java.io.IOException;
 import java.security.MessageDigest;
 
 import static net.logstash.logback.argument.StructuredArguments.kv;
@@ -62,6 +60,8 @@ public class ElasticSearchWriterImpl implements ElasticSearchWriter {
                 byte[] datasetHashId = md.digest(dataSet.getURI().getBytes());
                 String datasetHashedString = DatatypeConverter.printHexBinary(datasetHashId).toUpperCase();
                 JSONObject jsonDatasetObject = new JSONObject();
+
+                jsonDatasetObject.put("URI", dataSet.getURI());
 
                 StmtIterator titleIterator = model.listStatements(dataSet, DCTerms.title, (RDFNode) null);
                 if (titleIterator.hasNext()) {
@@ -131,6 +131,9 @@ public class ElasticSearchWriterImpl implements ElasticSearchWriter {
 
                 JSONArray temporalInfo = getJSONArray(model, dataSet, DCTerms.temporal, DCTerms.temporal.getLocalName());
                 jsonDatasetObject.put("temporalInfo", temporalInfo);
+
+                JSONArray themeInfo = getJSONArray(model, dataSet, DCAT.theme, DCAT.theme.getLocalName());
+                jsonDatasetObject.put("themes", themeInfo);
 
                 IndexRequest indexRequest = new IndexRequest("opal", "_doc", datasetHashedString).
                         source(jsonDatasetObject, XContentType.JSON);

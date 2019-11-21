@@ -1,6 +1,7 @@
 package org.diceresearch.datasetfetcher.db;
 
 import org.diceresearch.datasetfetcher.model.Portal;
+import org.diceresearch.datasetfetcher.model.WorkingStatus;
 import org.diceresearch.datasetfetcher.repository.PortalRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,15 +35,15 @@ public class DBHelper {
             portalRepository.save(new Portal().setName("mcloud").setLastNotFetched(0).setHigh(-1)
                     .setQueryAddress(tripleStoreURL+"/mcloud/query")
                     .setUsername(tripleStoreUsername).setPassword(tripleStorePassword)
-                    .setOutputQueue("dataset-graph"));
+                    .setOutputQueue("dataset-graph").setWorkingStatus(WorkingStatus.IDLE).setStep(100));
             portalRepository.save(new Portal().setName("govdata").setLastNotFetched(0).setHigh(-1)
                     .setQueryAddress(tripleStoreURL+"/govdata/query")
                     .setUsername(tripleStoreUsername).setPassword(tripleStorePassword)
-                    .setOutputQueue("dataset-graph"));
+                    .setOutputQueue("dataset-graph").setWorkingStatus(WorkingStatus.IDLE).setStep(100));
             portalRepository.save(new Portal().setName("europeandataportal").setLastNotFetched(0).setHigh(-1)
                     .setQueryAddress(tripleStoreURL+"/europeandataportal/query")
                     .setUsername(tripleStoreUsername).setPassword(tripleStorePassword)
-                    .setOutputQueue("dataset-graph"));
+                    .setOutputQueue("dataset-graph").setWorkingStatus(WorkingStatus.IDLE).setStep(100));
         }
     }
 }

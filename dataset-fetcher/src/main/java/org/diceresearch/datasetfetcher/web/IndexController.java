@@ -1,12 +1,13 @@
 package org.diceresearch.datasetfetcher.web;
 
 import org.diceresearch.datasetfetcher.model.Portal;
+import org.diceresearch.datasetfetcher.model.WorkingStatus;
 import org.diceresearch.datasetfetcher.repository.PortalRepository;
 import org.diceresearch.datasetfetcher.utility.DataSetFetcher;
-import org.diceresearch.datasetfetcher.utility.DataSetFetcherPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,14 +25,14 @@ public class IndexController {
     private static final Logger logger = LoggerFactory.getLogger(IndexController.class);
 
     private final PortalRepository portalRepository;
-    private final DataSetFetcherPool dataSetFetcherPool;
+    private final ApplicationContext context;
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     @Autowired
-    public IndexController(PortalRepository portalRepository, DataSetFetcherPool dataSetFetcherPool) {
+    public IndexController(PortalRepository portalRepository, ApplicationContext context) {
         this.portalRepository = portalRepository;
-        this.dataSetFetcherPool = dataSetFetcherPool;
+        this.context = context;
     }
 
     @GetMapping("/")
@@ -45,21 +46,26 @@ public class IndexController {
     public String convert(
             @RequestParam(name = "id") String id,
             @RequestParam(name = "lnf", defaultValue = "0") String lnf,
-            @RequestParam(name = "high", defaultValue = "-1") String high) {
+            @RequestParam(name = "high", defaultValue = "-1") String high,
+            @RequestParam(name = "step", defaultValue = "200") String step
+    ) {
 
         try {
-            logger.info("received request for converting {} {} {}", kv("id", id), kv("lnf", lnf), kv("high", high));
+            logger.info("received request for converting {} {} {} {}",
+                    kv("id", id), kv("lnf", lnf), kv("high", high), kv("step", step));
             if (id != null && !id.isEmpty()) {
                 int i_id = Integer.parseInt(id);
-                Optional<Portal> optional = portalRepository.findById(i_id);
+                Optional<Portal> optionalPortal = portalRepository.findById(i_id);
                 int i_lnf = Integer.parseInt(lnf);
                 int i_high = Integer.parseInt(high);
-                if (optional.isPresent()) {
-                    Portal portal = optional.get();
+                int i_step = Integer.parseInt(step);
+                if (optionalPortal.isPresent()) {
+                    Portal portal = optionalPortal.get();
                     portal.setHigh(i_high);
                     portal.setLastNotFetched(i_lnf);
+                    portal.setStep(i_step);
                     portalRepository.save(portal);
-                    DataSetFetcher fetcher = dataSetFetcherPool.getFetcher(portal.getId());
+                    DataSetFetcher fetcher = context.getBean(DataSetFetcher.class);
                     fetcher.initialQueryExecutionFactory(i_id);
                     executorService.submit(fetcher);
                 }
@@ -73,11 +79,13 @@ public class IndexController {
     @GetMapping("/cancel")
     public String convert(@RequestParam(name = "id") String id) {
         try {
-            if (id != null && !id.isEmpty()) {
-                DataSetFetcher fetcher = dataSetFetcherPool.getFetcher(Integer.parseInt(id));
-                fetcher.setCanceled(true);
-            }
-        } catch (NumberFormatException e) {
+            Integer i_id = Integer.parseInt(id);
+            Optional<Portal> optionalPortal = portalRepository.findById(i_id);
+            optionalPortal.ifPresent(portal -> {
+                portal.setWorkingStatus(WorkingStatus.PAUSED);
+                portalRepository.save(portal);
+            });
+        } catch (Exception e) {
             logger.error("Exception in cancel ", e);
         }
         return "redirect:/";
