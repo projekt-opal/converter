@@ -30,6 +30,13 @@ public class Portal {
     @Column
     private String outputQueue;
 
+    @Column
+    private Integer step;
+
+    @Column
+    @Enumerated(EnumType.STRING)
+    private WorkingStatus workingStatus;
+
     public String getQueryAddress() {
         return queryAddress;
     }
@@ -100,5 +107,38 @@ public class Portal {
     public Portal setId(int id) {
         this.id = id;
         return this;
+    }
+
+    public Integer getStep() {
+        return step;
+    }
+
+    public Portal setStep(Integer step) {
+        this.step = step;
+        return this;
+    }
+
+    public WorkingStatus getWorkingStatus() {
+        return workingStatus;
+    }
+
+    public Portal setWorkingStatus(WorkingStatus workingStatus) {
+        this.workingStatus = workingStatus;
+        return this;
+    }
+
+    @Override
+    public String toString() {
+        return "Portal{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", lastNotFetched=" + lastNotFetched +
+                ", high=" + high +
+                ", queryAddress='" + queryAddress + '\'' +
+                ", username='" + username + '\'' +
+                ", outputQueue='" + outputQueue + '\'' +
+                ", step=" + step +
+                ", workingStatus=" + workingStatus +
+                '}';
     }
 }
