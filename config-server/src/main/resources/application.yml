@@ -7,7 +7,7 @@ spring:
         git:
           uri: ${CONFIG_REPO}
           clone-on-start: true
-          default-label: ${CONFIG_REPO_DEFAULT_BRANCH}
+          default-label: ${CONFIG_REPO_DEFAULT_BRANCH:master}
 
 server:
   port: 8888

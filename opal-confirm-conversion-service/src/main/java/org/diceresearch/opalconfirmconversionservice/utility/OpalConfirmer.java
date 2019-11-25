@@ -1,11 +1,12 @@
 package org.diceresearch.opalconfirmconversionservice.utility;
 
-import org.aksw.jena_sparql_api.mapper.annotation.RdfType;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.jena.rdf.model.*;
 import org.apache.jena.rdf.model.impl.SelectorImpl;
 import org.apache.jena.rdf.model.impl.StatementImpl;
 import org.apache.jena.vocabulary.DCAT;
 import org.apache.jena.vocabulary.RDF;
+//import org.dice_research.opal.common.utilities.Hash;
 import org.diceresearch.common.utility.rdf.RdfSerializerDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import static net.logstash.logback.argument.StructuredArguments.kv;
 
@@ -20,8 +22,9 @@ import static net.logstash.logback.argument.StructuredArguments.kv;
 public class OpalConfirmer {
 
     private static final Logger logger = LoggerFactory.getLogger(OpalConfirmer.class);
-    private static final Property opalTemporalCatalogProperty =
-            ResourceFactory.createProperty("http://projekt-opal.de/catalog");
+
+    public static final String NS_OPAL = "http://projekt-opal.de/";
+    public static final Property originalUri = ResourceFactory.createProperty(NS_OPAL, "originalUri");
 
     public byte[] convert(byte[] bytes) {
         Model model;
@@ -35,13 +38,15 @@ public class OpalConfirmer {
             ResIterator resIterator = model.listResourcesWithProperty(RDF.type, DCAT.Dataset);
             if (resIterator.hasNext()) {
                 Resource dataSet = resIterator.nextResource();
+                model.add(dataSet, originalUri, dataSet);
                 logger.info("{}", kv("datasetUrl", dataSet.getURI()));
                 // After the dataset URI is changed to Opal format, new URI to be passed for distribution
-                dataSet = makeOpalConfirmedUri(model, dataSet, DCAT.Dataset, null, "dataset");
-                makeOpalConfirmedUri(model, dataSet, DCAT.Distribution, DCAT.distribution, "distribution");
+                Resource catalog = getCatalog(model);
+                dataSet = makeOpalConfirmedUri(model, catalog, dataSet, DCAT.Dataset, null, "dataset");
+                makeOpalConfirmedUri(model, catalog, dataSet, DCAT.Distribution, DCAT.distribution, "distribution");
                 ResIterator opalConfirmedIterator = model.listResourcesWithProperty(RDF.type, DCAT.Dataset);
                 Resource dataSetOpalConfirmed = opalConfirmedIterator.nextResource();// TODO: 07.12.18 Check for Exception (".nextResource()")
-                updateDatasetInGraph(dataSet, dataSetOpalConfirmed, model);
+                updateDatasetInGraph(dataSet, dataSetOpalConfirmed, model, catalog);
                 //removing duplicate catalog info (if it is there)
                 StmtIterator stmtIterator = model.listStatements(dataSetOpalConfirmed,
                         ResourceFactory.createProperty("http://www.w3.org/ns/dcat#catalog"), (RDFNode) null);
@@ -58,26 +63,30 @@ public class OpalConfirmer {
         return bytes;
     }
 
-    private void updateDatasetInGraph(Resource dataSet, Resource dataSetOpalConfirmed, Model model) {
+    private void updateDatasetInGraph(Resource dataSet, Resource dataSetOpalConfirmed, Model model, Resource portal) {
+        model.remove(portal, DCAT.dataset, dataSet);
+        model.add(portal, DCAT.dataset, dataSetOpalConfirmed);
+    }
+
+    private Resource getCatalog(Model model) {
         ResIterator iterator = model.listSubjectsWithProperty(RDF.type, DCAT.Catalog);
         if (iterator.hasNext()) {
-            Resource portal = iterator.nextResource();
-            model.remove(portal, DCAT.dataset, dataSet);
-            model.add(portal, DCAT.dataset, dataSetOpalConfirmed);
+            return iterator.nextResource();
         }
+        return null;
     }
 
     private boolean isNotOpalConfirmed(String uri) {
-        return !uri.startsWith("http://projekt-opal.de/");
+        return !uri.startsWith(NS_OPAL);
     }
 
-    private Resource makeOpalConfirmedUri(Model model, Resource dataSet, Resource classType, Property propertyType, String typeName) {
+    private Resource makeOpalConfirmedUri(Model model, Resource catalog, Resource dataSet, Resource classType, Property propertyType, String typeName) {
         ResIterator resIterator = model.listResourcesWithProperty(RDF.type, classType);
         Resource newResource = null;
         while (resIterator.hasNext()) {
             Resource oldResource = resIterator.nextResource();
             if (isNotOpalConfirmed(oldResource.getURI())) {
-                newResource = generateOpalConfirmedUrl(oldResource, typeName);
+                newResource = generateOpalConfirmedUrl(catalog, oldResource, typeName);
 
                 StmtIterator oldIterator = model.listStatements(new SelectorImpl(oldResource, null, (RDFNode) null));
                 List<Statement> newResourceStatements = new ArrayList<>();
@@ -100,10 +109,14 @@ public class OpalConfirmer {
         return newResource;
     }
 
-    private Resource generateOpalConfirmedUrl(Resource resource, String type) {
+    private Resource generateOpalConfirmedUrl(Resource catalog, Resource resource, String type) {
         String uri = resource.getURI();
         String pattern = "[^a-zA-Z0-9]";
         String s = uri.replaceAll(pattern, "_");
-        return ResourceFactory.createResource("http://projekt-opal.de/" + type + "/" + s);
+        if (type.equals("dataset")) {
+            s = catalog.getLocalName().concat(s);
+            s = DigestUtils.md5Hex(s).toLowerCase();
+        }
+        return ResourceFactory.createResource(NS_OPAL + type + "/" + s);
     }
 }

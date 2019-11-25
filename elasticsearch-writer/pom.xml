@@ -8,7 +8,7 @@
         <version>0.0.1</version>
         <relativePath>..</relativePath> <!-- lookup parent from repository -->
     </parent>
-    <artifactId>elsticsearch-writer</artifactId>
+    <artifactId>elasticsearch-writer</artifactId>
     <version>0.0.1</version>
     <name>elasticsearch-writer</name>
     <description>writer for elastic search database</description>
