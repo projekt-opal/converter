@@ -111,6 +111,12 @@ public class ElasticSearchWriterImpl implements ElasticSearchWriter {
                     jsonDatasetObject.put(languageStatement.getPredicate().getLocalName(), languageStatement.getObject().toString());
                 }
 
+                StmtIterator licenseIterator = model.listStatements(dataSet, DCTerms.license, (RDFNode)null);
+                if(licenseIterator.hasNext()){
+                    Statement licenseStatement = licenseIterator.nextStatement();
+                    jsonDatasetObject.put(licenseStatement.getPredicate().getLocalName(), licenseStatement.getObject().toString());
+                }
+
                 JSONArray distributions = getJSONArray(model, dataSet, DCAT.distribution, DCAT.distribution.getLocalName());
                 jsonDatasetObject.put("distributions", distributions);
 
