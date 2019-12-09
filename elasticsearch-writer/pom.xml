@@ -6,12 +6,24 @@
         <groupId>org.dice-research</groupId>
         <artifactId>converter</artifactId>
         <version>0.0.1</version>
-        <relativePath>..</relativePath> <!-- lookup parent from repository -->
     </parent>
     <artifactId>elasticsearch-writer</artifactId>
     <version>0.0.1</version>
     <name>elasticsearch-writer</name>
     <description>writer for elastic search database</description>
+
+    <repositories>
+        <repository>
+            <id>maven.aksw.internal</id>
+            <name>AKSW Repository</name>
+            <url>http://maven.aksw.org/archiva/repository/internal</url>
+        </repository>
+        <repository>
+            <id>maven.aksw.snapshots</id>
+            <name>AKSW Snapshot Repository</name>
+            <url>http://maven.aksw.org/archiva/repository/snapshots</url>
+        </repository>
+    </repositories>
 
     <dependencies>
         <dependency>
@@ -59,11 +71,17 @@
         </dependency>
 
         <dependency>
-            <groupId>org.dice-research</groupId>
+            <groupId>org.dice-research.opal</groupId>
             <artifactId>common</artifactId>
-            <version>0.0.1</version>
+            <version>[1,2)</version>
+        </dependency>
+        <dependency>
+            <groupId>com.googlecode.json-simple</groupId>
+            <artifactId>json-simple</artifactId>
+            <version>1.1.1</version>
             <scope>compile</scope>
         </dependency>
+
     </dependencies>
 
     <properties>

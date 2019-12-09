@@ -14,7 +14,7 @@ import org.apache.jena.update.UpdateProcessor;
 import org.apache.jena.update.UpdateRequest;
 import org.apache.jena.vocabulary.DCAT;
 import org.apache.jena.vocabulary.RDF;
-import org.diceresearch.common.utility.rdf.RdfSerializerDeserializer;
+import org.dice_research.opal.common.utilities.ModelSerialization;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -56,7 +56,7 @@ public class TripleStoreWriter implements CredentialsProvider {
     }
 
     private void writeModel(byte[] bytes) {
-        Model model = RdfSerializerDeserializer.deserialize(bytes);
+        Model model = ModelSerialization.deserialize(bytes);
         Resource dataSet = null;
         try {
             ResIterator resIterator = model.listResourcesWithProperty(RDF.type, DCAT.Dataset);

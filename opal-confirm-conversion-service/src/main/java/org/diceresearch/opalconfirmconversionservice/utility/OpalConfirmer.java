@@ -6,30 +6,31 @@ import org.apache.jena.rdf.model.impl.SelectorImpl;
 import org.apache.jena.rdf.model.impl.StatementImpl;
 import org.apache.jena.vocabulary.DCAT;
 import org.apache.jena.vocabulary.RDF;
-//import org.dice_research.opal.common.utilities.Hash;
-import org.diceresearch.common.utility.rdf.RdfSerializerDeserializer;
+import org.dice_research.opal.common.utilities.Hash;
+import org.dice_research.opal.common.utilities.ModelSerialization;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import static net.logstash.logback.argument.StructuredArguments.kv;
+import static org.dice_research.opal.common.vocabulary.Opal.NS_OPAL;
+import static org.dice_research.opal.common.vocabulary.Opal.originalUri;
+
+//import org.dice_research.opal.common.utilities.Hash;
+//import org.diceresearch.common.utility.rdf.RdfSerializerDeserializer;
 
 @Component
 public class OpalConfirmer {
 
     private static final Logger logger = LoggerFactory.getLogger(OpalConfirmer.class);
 
-    public static final String NS_OPAL = "http://projekt-opal.de/";
-    public static final Property originalUri = ResourceFactory.createProperty(NS_OPAL, "originalUri");
-
     public byte[] convert(byte[] bytes) {
         Model model;
         try {
-            model = RdfSerializerDeserializer.deserialize(bytes);
+            model = ModelSerialization.deserialize(bytes);
         } catch (Exception e) {
             logger.error("Exception in deserialize the byte code ", e);
             return bytes;
@@ -52,7 +53,7 @@ public class OpalConfirmer {
                         ResourceFactory.createProperty("http://www.w3.org/ns/dcat#catalog"), (RDFNode) null);
                 model.remove(stmtIterator);
 
-                return RdfSerializerDeserializer.serialize(model);
+                return ModelSerialization.serialize(model);
             } else {
                 logger.info("The given model doesn't have DCAT:Dataset");
             }
@@ -110,12 +111,13 @@ public class OpalConfirmer {
     }
 
     private Resource generateOpalConfirmedUrl(Resource catalog, Resource resource, String type) {
-        String uri = resource.getURI();
-        String pattern = "[^a-zA-Z0-9]";
-        String s = uri.replaceAll(pattern, "_");
+        String s = resource.getURI();
         if (type.equals("dataset")) {
             s = catalog.getLocalName().concat(s);
-            s = DigestUtils.md5Hex(s).toLowerCase();
+            s = Hash.md5(s);
+        } else {
+            String pattern = "[^a-zA-Z0-9]";
+            s = s.replaceAll(pattern, "_");
         }
         return ResourceFactory.createResource(NS_OPAL + type + "/" + s);
     }

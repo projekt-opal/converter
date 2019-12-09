@@ -42,7 +42,6 @@
 	</dependencyManagement>
 
 	<modules>
-		<module>common</module>
 		<module>discovery-server</module>
 		<module>dataset-fetcher</module>
 		<module>opal-confirm-conversion-service</module>

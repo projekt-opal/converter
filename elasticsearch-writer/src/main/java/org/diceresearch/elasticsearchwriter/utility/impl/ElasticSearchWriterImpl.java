@@ -5,8 +5,8 @@ import org.apache.jena.rdf.model.*;
 import org.apache.jena.vocabulary.DCAT;
 import org.apache.jena.vocabulary.DCTerms;
 import org.apache.jena.vocabulary.RDF;
-import org.diceresearch.common.utility.rdf.RdfSerializerDeserializer;
-import org.diceresearch.common.vocabulary.Dqv;
+import org.dice_research.opal.common.utilities.ModelSerialization;
+import org.dice_research.opal.common.vocabulary.Dqv;
 import org.diceresearch.elasticsearchwriter.utility.ElasticSearchWriter;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
@@ -48,7 +48,7 @@ public class ElasticSearchWriterImpl implements ElasticSearchWriter {
 
     @Override
     public void write(byte[] bytes) {
-        Model model = RdfSerializerDeserializer.deserialize(bytes);
+        Model model = ModelSerialization.deserialize(bytes);
         Resource dataSet = null;
 
         try {

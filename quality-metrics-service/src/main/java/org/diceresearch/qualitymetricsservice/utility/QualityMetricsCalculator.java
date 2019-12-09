@@ -5,12 +5,12 @@ import org.apache.jena.rdf.model.impl.SelectorImpl;
 import org.apache.jena.rdf.model.impl.StatementImpl;
 import org.apache.jena.vocabulary.DCAT;
 import org.apache.jena.vocabulary.RDF;
-import org.diceresearch.qualitymetricsservice.utility.civet.CivetApi;
-import org.diceresearch.common.utility.rdf.RdfSerializerDeserializer;
-import org.diceresearch.common.vocabulary.Dqv;
+import org.dice_research.opal.common.utilities.ModelSerialization;
+import org.dice_research.opal.common.vocabulary.Dqv;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import org.dice_research.opal.civet.Civet;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,15 +27,23 @@ public class QualityMetricsCalculator {
 
     public byte[] calculate(byte[] bytes) {
         try {
-            Model model = RdfSerializerDeserializer.deserialize(bytes);
+            Model model = ModelSerialization.deserialize(bytes);
             ResIterator resIterator = model.listResourcesWithProperty(RDF.type, DCAT.Dataset);
             if (resIterator.hasNext()) {
                 Resource dataSet = resIterator.nextResource();
                 logger.info("{}", kv("datasetUrl", dataSet.getURI()));
-                CivetApi civetApi = new CivetApi();
-                model = civetApi.computeFuture(model).get();
+                Civet civet = new Civet();
+                // If existing measurements should be removed
+                // (optional method call, default: true)
+                civet.setRemoveMeasurements(true);
+
+                // If it should be logged, if a measurement could not be computed
+                // (optional method call, default: true)
+                civet.setLogNotComputed(true);
+
+                civet.processModel(model, dataSet.getURI());
                 makeOpalConfirmedQualityMeasurements(model, dataSet);
-                return RdfSerializerDeserializer.serialize(model);
+                return ModelSerialization.serialize(model);
             }
         } catch (Exception e) {
             logger.error("An error occurred in CIVET ", e);
