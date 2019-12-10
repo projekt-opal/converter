@@ -4,10 +4,7 @@ import org.apache.jena.query.ParameterizedSparqlString;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSet;
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.RDFNode;
-import org.apache.jena.rdf.model.Resource;
-import org.apache.jena.rdf.model.ResourceFactory;
+import org.apache.jena.rdf.model.*;
 import org.apache.jena.vocabulary.DCAT;
 import org.apache.jena.vocabulary.RDF;
 import org.dice_research.opal.common.utilities.ModelSerialization;
@@ -96,20 +93,32 @@ public class DataSetFetcher implements Runnable {
                 listOfDataSets
                         .parallelStream().forEach(resource -> {
                     Model graph = getGraph(resource);
+                    logUri(graph);
                     byte[] serialize = ModelSerialization.serialize(graph);
                     sourceWithDynamicDestination.sendMessage(serialize, finalPortal.getOutputQueue());
                 });
             }
             optionalPortal = portalRepository.findById(portalId);
-            if(optionalPortal.isPresent()) {
+            if (optionalPortal.isPresent()) {
                 portal = optionalPortal.get();
                 portal.setLastNotFetched(high);
                 portal.setWorkingStatus(WorkingStatus.DONE);
                 portalRepository.save(portal);
             }
-            logger.info("Fetching portal {} finished", portal);
+            logger.info("Finished fetching portal {} ", portal);
         } catch (Exception e) {
             logger.error("Exception", e);
+        }
+    }
+
+    private void logUri(Model graph) {
+        try {
+            ResIterator resIterator = graph.listResourcesWithProperty(RDF.type, DCAT.Dataset);
+            if(resIterator.hasNext()) {
+                Resource resource = resIterator.nextResource();
+                logger.info("{}", kv("originalUri", resource.getURI()));
+            }
+        } catch (Exception ignored) {
         }
     }
 

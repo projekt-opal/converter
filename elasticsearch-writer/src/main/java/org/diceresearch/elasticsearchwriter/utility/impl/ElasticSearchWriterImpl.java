@@ -26,6 +26,7 @@ import javax.xml.bind.DatatypeConverter;
 import java.security.MessageDigest;
 
 import static net.logstash.logback.argument.StructuredArguments.kv;
+import static org.dice_research.opal.common.vocabulary.Opal.originalUri;
 
 @Component
 public class ElasticSearchWriterImpl implements ElasticSearchWriter {
@@ -55,7 +56,13 @@ public class ElasticSearchWriterImpl implements ElasticSearchWriter {
             ResIterator resIterator = model.listResourcesWithProperty(RDF.type, DCAT.Dataset);
             if (resIterator.hasNext()) {
                 dataSet = resIterator.nextResource();
-                logger.info("{}", kv("datasetUrl", dataSet.getURI()));
+                String originalUriValue = "";
+                try {
+                    NodeIterator nodeIterator = model.listObjectsOfProperty(dataSet, originalUri);
+                    if(nodeIterator.hasNext()) originalUriValue = nodeIterator.next().toString();
+                } catch (Exception ignored) {}
+                logger.info("{} {}", kv("originalUri", originalUriValue), kv("dataSetUri", dataSet.getURI()));
+
                 MessageDigest md = MessageDigest.getInstance("MD5");
                 byte[] datasetHashId = md.digest(dataSet.getURI().getBytes());
                 String datasetHashedString = DatatypeConverter.printHexBinary(datasetHashId).toUpperCase();
