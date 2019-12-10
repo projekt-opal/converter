@@ -1,6 +1,5 @@
 package org.diceresearch.opalconfirmconversionservice.utility;
 
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.jena.rdf.model.*;
 import org.apache.jena.rdf.model.impl.SelectorImpl;
 import org.apache.jena.rdf.model.impl.StatementImpl;
@@ -8,6 +7,8 @@ import org.apache.jena.vocabulary.DCAT;
 import org.apache.jena.vocabulary.RDF;
 import org.dice_research.opal.common.utilities.Hash;
 import org.dice_research.opal.common.utilities.ModelSerialization;
+import org.dice_research.opal.metadata.GeoData;
+import org.dice_research.opal.metadata.LanguageDetection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -18,9 +19,6 @@ import java.util.List;
 import static net.logstash.logback.argument.StructuredArguments.kv;
 import static org.dice_research.opal.common.vocabulary.Opal.NS_OPAL;
 import static org.dice_research.opal.common.vocabulary.Opal.originalUri;
-
-//import org.dice_research.opal.common.utilities.Hash;
-//import org.diceresearch.common.utility.rdf.RdfSerializerDeserializer;
 
 @Component
 public class OpalConfirmer {
@@ -53,6 +51,10 @@ public class OpalConfirmer {
                         ResourceFactory.createProperty("http://www.w3.org/ns/dcat#catalog"), (RDFNode) null);
                 model.remove(stmtIterator);
 
+                refineMetadata(model, dataSet);
+
+                createGeoData(model, dataSet);
+
                 return ModelSerialization.serialize(model);
             } else {
                 logger.info("The given model doesn't have DCAT:Dataset");
@@ -62,6 +64,26 @@ public class OpalConfirmer {
         }
 
         return bytes;
+    }
+
+    private void createGeoData(Model model, Resource dataSet) {
+        try {
+            new GeoData().processModel(model, dataSet.getURI());
+        } catch (Exception e) {
+            logger.error("", e);
+        }
+    }
+
+    private void refineMetadata(Model model, Resource dataSet) {
+        try {
+            LanguageDetection languageDetection = new LanguageDetection();
+            languageDetection.initialize();
+
+            // Update model
+            languageDetection.processModel(model, dataSet.getURI());
+        } catch (Exception e) {
+            logger.error("", e);
+        }
     }
 
     private void updateDatasetInGraph(Resource dataSet, Resource dataSetOpalConfirmed, Model model, Resource portal) {
