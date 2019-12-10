@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static net.logstash.logback.argument.StructuredArguments.kv;
+import static org.dice_research.opal.common.vocabulary.Opal.originalUri;
 
 @Component
 public class QualityMetricsCalculator {
@@ -31,7 +32,14 @@ public class QualityMetricsCalculator {
             ResIterator resIterator = model.listResourcesWithProperty(RDF.type, DCAT.Dataset);
             if (resIterator.hasNext()) {
                 Resource dataSet = resIterator.nextResource();
-                logger.info("{}", kv("datasetUrl", dataSet.getURI()));
+
+                String originalUriValue = "";
+                try {
+                    NodeIterator nodeIterator = model.listObjectsOfProperty(dataSet, originalUri);
+                    if(nodeIterator.hasNext()) originalUriValue = nodeIterator.next().toString();
+                } catch (Exception ignored) {}
+                logger.info("{} {}", kv("originalUri", originalUriValue), kv("dataSetUri", dataSet.getURI()));
+
                 Civet civet = new Civet();
                 // If existing measurements should be removed
                 // (optional method call, default: true)

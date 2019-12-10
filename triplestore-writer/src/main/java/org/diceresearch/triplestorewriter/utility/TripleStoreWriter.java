@@ -26,6 +26,7 @@ import javax.annotation.PostConstruct;
 import java.nio.charset.StandardCharsets;
 
 import static net.logstash.logback.argument.StructuredArguments.kv;
+import static org.dice_research.opal.common.vocabulary.Opal.originalUri;
 
 @Component
 public class TripleStoreWriter implements CredentialsProvider {
@@ -62,7 +63,12 @@ public class TripleStoreWriter implements CredentialsProvider {
             ResIterator resIterator = model.listResourcesWithProperty(RDF.type, DCAT.Dataset);
             if (resIterator.hasNext()) {
                 dataSet = resIterator.nextResource();
-                logger.info("{}", kv("datasetUrl", dataSet.getURI()));
+                String originalUriValue = "";
+                try {
+                    NodeIterator nodeIterator = model.listObjectsOfProperty(dataSet, originalUri);
+                    if(nodeIterator.hasNext()) originalUriValue = nodeIterator.next().toString();
+                } catch (Exception ignored) {}
+                logger.info("{} {}", kv("originalUri", originalUriValue), kv("dataSetUri", dataSet.getURI()));
             }
         } catch (Exception ignored) {
         }

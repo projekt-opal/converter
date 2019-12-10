@@ -25,6 +25,8 @@ public class OpalConfirmer {
 
     private static final Logger logger = LoggerFactory.getLogger(OpalConfirmer.class);
 
+    private static final Property catalogProperty= ResourceFactory.createProperty("http://www.w3.org/ns/dcat#catalog");
+
     public byte[] convert(byte[] bytes) {
         Model model;
         try {
@@ -38,17 +40,15 @@ public class OpalConfirmer {
             if (resIterator.hasNext()) {
                 Resource dataSet = resIterator.nextResource();
                 model.add(dataSet, originalUri, dataSet);
-                logger.info("{}", kv("datasetUrl", dataSet.getURI()));
+                String originalUriValue = dataSet.getURI();
                 // After the dataset URI is changed to Opal format, new URI to be passed for distribution
                 Resource catalog = getCatalog(model);
                 dataSet = makeOpalConfirmedUri(model, catalog, dataSet, DCAT.Dataset, null, "dataset");
+                logger.info("{} {}", kv("originalUri", originalUriValue), kv("dataSetUri", dataSet.getURI()));
+
                 makeOpalConfirmedUri(model, catalog, dataSet, DCAT.Distribution, DCAT.distribution, "distribution");
-                ResIterator opalConfirmedIterator = model.listResourcesWithProperty(RDF.type, DCAT.Dataset);
-                Resource dataSetOpalConfirmed = opalConfirmedIterator.nextResource();// TODO: 07.12.18 Check for Exception (".nextResource()")
-                updateDatasetInGraph(dataSet, dataSetOpalConfirmed, model, catalog);
-                //removing duplicate catalog info (if it is there)
-                StmtIterator stmtIterator = model.listStatements(dataSetOpalConfirmed,
-                        ResourceFactory.createProperty("http://www.w3.org/ns/dcat#catalog"), (RDFNode) null);
+
+                StmtIterator stmtIterator = model.listStatements(dataSet, catalogProperty, (RDFNode) null);
                 model.remove(stmtIterator);
 
                 refineMetadata(model, dataSet);
@@ -84,11 +84,6 @@ public class OpalConfirmer {
         } catch (Exception e) {
             logger.error("", e);
         }
-    }
-
-    private void updateDatasetInGraph(Resource dataSet, Resource dataSetOpalConfirmed, Model model, Resource portal) {
-        model.remove(portal, DCAT.dataset, dataSet);
-        model.add(portal, DCAT.dataset, dataSetOpalConfirmed);
     }
 
     private Resource getCatalog(Model model) {
