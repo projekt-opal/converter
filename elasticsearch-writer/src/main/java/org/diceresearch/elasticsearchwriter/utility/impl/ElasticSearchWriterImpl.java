@@ -5,8 +5,8 @@ import org.apache.jena.rdf.model.*;
 import org.apache.jena.vocabulary.DCAT;
 import org.apache.jena.vocabulary.DCTerms;
 import org.apache.jena.vocabulary.RDF;
-import org.diceresearch.common.utility.rdf.RdfSerializerDeserializer;
-import org.diceresearch.common.vocabulary.Dqv;
+import org.dice_research.opal.common.utilities.ModelSerialization;
+import org.dice_research.opal.common.vocabulary.Dqv;
 import org.diceresearch.elasticsearchwriter.utility.ElasticSearchWriter;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
@@ -26,6 +26,7 @@ import javax.xml.bind.DatatypeConverter;
 import java.security.MessageDigest;
 
 import static net.logstash.logback.argument.StructuredArguments.kv;
+import static org.dice_research.opal.common.vocabulary.Opal.originalUri;
 
 @Component
 public class ElasticSearchWriterImpl implements ElasticSearchWriter {
@@ -48,14 +49,20 @@ public class ElasticSearchWriterImpl implements ElasticSearchWriter {
 
     @Override
     public void write(byte[] bytes) {
-        Model model = RdfSerializerDeserializer.deserialize(bytes);
+        Model model = ModelSerialization.deserialize(bytes);
         Resource dataSet = null;
 
         try {
             ResIterator resIterator = model.listResourcesWithProperty(RDF.type, DCAT.Dataset);
             if (resIterator.hasNext()) {
                 dataSet = resIterator.nextResource();
-                logger.info("{}", kv("datasetUrl", dataSet.getURI()));
+                String originalUriValue = "";
+                try {
+                    NodeIterator nodeIterator = model.listObjectsOfProperty(dataSet, originalUri);
+                    if(nodeIterator.hasNext()) originalUriValue = nodeIterator.next().toString();
+                } catch (Exception ignored) {}
+                logger.info("{} {}", kv("originalUri", originalUriValue), kv("dataSetUri", dataSet.getURI()));
+
                 MessageDigest md = MessageDigest.getInstance("MD5");
                 byte[] datasetHashId = md.digest(dataSet.getURI().getBytes());
                 String datasetHashedString = DatatypeConverter.printHexBinary(datasetHashId).toUpperCase();
@@ -109,6 +116,12 @@ public class ElasticSearchWriterImpl implements ElasticSearchWriter {
                 if (languageIterator.hasNext()) {
                     Statement languageStatement = languageIterator.nextStatement();
                     jsonDatasetObject.put(languageStatement.getPredicate().getLocalName(), languageStatement.getObject().toString());
+                }
+
+                StmtIterator licenseIterator = model.listStatements(dataSet, DCTerms.license, (RDFNode)null);
+                if(licenseIterator.hasNext()){
+                    Statement licenseStatement = licenseIterator.nextStatement();
+                    jsonDatasetObject.put(licenseStatement.getPredicate().getLocalName(), licenseStatement.getObject().toString());
                 }
 
                 JSONArray distributions = getJSONArray(model, dataSet, DCAT.distribution, DCAT.distribution.getLocalName());

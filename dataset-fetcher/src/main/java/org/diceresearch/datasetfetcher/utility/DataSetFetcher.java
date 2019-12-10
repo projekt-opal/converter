@@ -1,17 +1,13 @@
 package org.diceresearch.datasetfetcher.utility;
 
-import com.google.common.collect.ImmutableMap;
 import org.apache.jena.query.ParameterizedSparqlString;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSet;
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.RDFNode;
-import org.apache.jena.rdf.model.Resource;
-import org.apache.jena.rdf.model.ResourceFactory;
+import org.apache.jena.rdf.model.*;
 import org.apache.jena.vocabulary.DCAT;
 import org.apache.jena.vocabulary.RDF;
-import org.diceresearch.common.utility.rdf.RdfSerializerDeserializer;
+import org.dice_research.opal.common.utilities.ModelSerialization;
 import org.diceresearch.datasetfetcher.messaging.SourceWithDynamicDestination;
 import org.diceresearch.datasetfetcher.model.Portal;
 import org.diceresearch.datasetfetcher.model.WorkingStatus;
@@ -41,10 +37,6 @@ public class DataSetFetcher implements Runnable {
     private Resource portalResource;
     private Integer portalId;
 
-    private static final ImmutableMap<String, String> PREFIXES = ImmutableMap.<String, String>builder()
-            .put("dcat", "http://www.w3.org/ns/dcat#")
-            .put("dct", "http://purl.org/dc/terms/")
-            .build();
 
     @Autowired
     public DataSetFetcher(PortalRepository portalRepository, QueryExecutionFactoryHttpProvider queryExecutionFactoryHttpProvider, SourceWithDynamicDestination sourceWithDynamicDestination) {
@@ -101,20 +93,32 @@ public class DataSetFetcher implements Runnable {
                 listOfDataSets
                         .parallelStream().forEach(resource -> {
                     Model graph = getGraph(resource);
-                    byte[] serialize = RdfSerializerDeserializer.serialize(graph);
+                    logUri(graph);
+                    byte[] serialize = ModelSerialization.serialize(graph);
                     sourceWithDynamicDestination.sendMessage(serialize, finalPortal.getOutputQueue());
                 });
             }
             optionalPortal = portalRepository.findById(portalId);
-            if(optionalPortal.isPresent()) {
+            if (optionalPortal.isPresent()) {
                 portal = optionalPortal.get();
                 portal.setLastNotFetched(high);
                 portal.setWorkingStatus(WorkingStatus.DONE);
                 portalRepository.save(portal);
             }
-            logger.info("Fetching portal {} finished", portal);
+            logger.info("Finished fetching portal {} ", portal);
         } catch (Exception e) {
-            logger.error("Exception in convert", e);
+            logger.error("Exception", e);
+        }
+    }
+
+    private void logUri(Model graph) {
+        try {
+            ResIterator resIterator = graph.listResourcesWithProperty(RDF.type, DCAT.Dataset);
+            if(resIterator.hasNext()) {
+                Resource resource = resIterator.nextResource();
+                logger.info("{}", kv("originalUri", resource.getURI()));
+            }
+        } catch (Exception ignored) {
         }
     }
 
@@ -132,6 +136,8 @@ public class DataSetFetcher implements Runnable {
 
         try {
             ParameterizedSparqlString pss = new ParameterizedSparqlString("" +
+                    "PREFIX dcat: <http://www.w3.org/ns/dcat#> " +
+                    "PREFIX dct: <http://purl.org/dc/terms/> " +
                     "SELECT ?catalog " +
                     "WHERE { " +
                     "  GRAPH ?g { " +
@@ -140,7 +146,6 @@ public class DataSetFetcher implements Runnable {
                     "  } " +
                     "}");
 
-            pss.setNsPrefixes(PREFIXES);
             pss.setParam("dataSet", dataSet);
 
             try (QueryExecution queryExecution =
@@ -165,6 +170,8 @@ public class DataSetFetcher implements Runnable {
         Model model;
 
         ParameterizedSparqlString pss = new ParameterizedSparqlString("" +
+                "PREFIX dcat: <http://www.w3.org/ns/dcat#> " +
+                "PREFIX dct: <http://purl.org/dc/terms/> " +
                 "CONSTRUCT { " + "?dataSet ?predicate ?object . " +
                 "?object ?p2 ?o2} " +
                 "WHERE { " +
@@ -174,7 +181,6 @@ public class DataSetFetcher implements Runnable {
                 "  } " +
                 "}");
 
-        pss.setNsPrefixes(PREFIXES);
         pss.setParam("dataSet", dataSet);
 
         model = executeConstruct(pss);
@@ -200,6 +206,8 @@ public class DataSetFetcher implements Runnable {
     private int getTotalNumberOfDataSets() {
         int cnt;
         ParameterizedSparqlString pss = new ParameterizedSparqlString("" +
+                "PREFIX dcat: <http://www.w3.org/ns/dcat#> " +
+                "PREFIX dct: <http://purl.org/dc/terms/> " +
                 "SELECT (COUNT(DISTINCT ?dataSet) AS ?num)\n" +
                 "WHERE { \n" +
                 "  GRAPH ?g {\n" +
@@ -208,7 +216,6 @@ public class DataSetFetcher implements Runnable {
                 "  }\n" +
                 "}");
 
-        pss.setNsPrefixes(PREFIXES);
 
         cnt = getCount(pss);
         return cnt;
@@ -218,19 +225,20 @@ public class DataSetFetcher implements Runnable {
     private List<Resource> getListOfDataSets(int idx, int limit) {
 
         ParameterizedSparqlString pss = new ParameterizedSparqlString("" +
-                "SELECT DISTINCT ?dataSet\n" +
-                "WHERE { \n" +
-                "  GRAPH ?g {\n" +
-                "    ?dataSet a dcat:Dataset.\n" +
-                "    FILTER(EXISTS{?dataSet dct:title ?title.})\n" +
-                "  }\n" +
-                "}\n" +
-                "ORDER BY ?dataSet\n" +
-                "OFFSET \n" + idx +
-                "LIMIT " + limit
+                "PREFIX dcat: <http://www.w3.org/ns/dcat#> " +
+                "PREFIX dct: <http://purl.org/dc/terms/> " +
+                "SELECT DISTINCT ?dataSet " +
+                "WHERE {  " +
+                "  GRAPH ?g { " +
+                "    ?dataSet a dcat:Dataset. " +
+                "    FILTER(EXISTS{?dataSet dct:title ?title.}) " +
+                "  } " +
+                "} " +
+                "ORDER BY ?dataSet " +
+                " OFFSET  " + idx +
+                " LIMIT " + limit
         );
 
-        pss.setNsPrefixes(PREFIXES);
 
         return getResources(pss);
     }

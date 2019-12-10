@@ -71,7 +71,7 @@ public class IndexController {
                 }
             }
         } catch (NumberFormatException e) {
-            logger.error("Exception in convert ", e);
+            logger.error("Exception ", e);
         }
         return "redirect:/";
     }
