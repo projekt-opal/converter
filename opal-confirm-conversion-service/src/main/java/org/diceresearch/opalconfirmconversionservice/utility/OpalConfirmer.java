@@ -25,7 +25,7 @@ public class OpalConfirmer {
 
     private static final Logger logger = LoggerFactory.getLogger(OpalConfirmer.class);
 
-    private static final Property catalogProperty= ResourceFactory.createProperty("http://www.w3.org/ns/dcat#catalog");
+    private static final Property catalogProperty = ResourceFactory.createProperty("http://www.w3.org/ns/dcat#catalog");
 
     public byte[] convert(byte[] bytes) {
         Model model;
@@ -129,13 +129,13 @@ public class OpalConfirmer {
 
     private Resource generateOpalConfirmedUrl(Resource catalog, Resource resource, String type) {
         String s = resource.getURI();
-        if (type.equals("dataset")) {
-            s = catalog.getLocalName().concat(s);
-            s = Hash.md5(s);
-        } else {
-            String pattern = "[^a-zA-Z0-9]";
-            s = s.replaceAll(pattern, "_");
-        }
+//        if (type.equals("dataset")) {
+        s = catalog.getLocalName().concat(s);
+        s = Hash.md5(s);
+//        } else {
+//            String pattern = "[^a-zA-Z0-9]";
+//            s = s.replaceAll(pattern, "_");
+//        }
         return ResourceFactory.createResource(NS_OPAL + type + "/" + s);
     }
 }
