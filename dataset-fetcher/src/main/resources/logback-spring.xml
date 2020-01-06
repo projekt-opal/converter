@@ -3,8 +3,8 @@
 <configuration>
     <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
     <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
-    <appender name="FILE"
-              class="ch.qos.logback.core.rolling.RollingFileAppender">
+
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>/var/log/converter/dataset-fetcher.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>/var/log/converter/dataset-fetcher.%d{yyyy-MM-dd}.log</fileNamePattern>
@@ -16,9 +16,7 @@
         </encoder>
     </appender>
 
-
-    <appender name="AMQP"
-              class="org.springframework.amqp.rabbit.logback.AmqpAppender">
+    <appender name="AMQP" class="org.springframework.amqp.rabbit.logback.AmqpAppender">
         <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
             <providers>
                 <mdc/>
@@ -54,12 +52,16 @@
         <deliveryMode>PERSISTENT</deliveryMode>
     </appender>
 
-
     <root level="INFO">
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="FILE"/>
         <appender-ref ref="AMQP"/>
     </root>
+    <logger name="org.diceresearch.datasetfetcher" additivity="false" level="INFO">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="FILE" />
+        <appender-ref ref="AMQP"/>
+    </logger>
     <logger name="org.apache.jena.riot" additivity="false" level="ERROR">
         <appender-ref ref="CONSOLE" />
         <appender-ref ref="FILE" />
