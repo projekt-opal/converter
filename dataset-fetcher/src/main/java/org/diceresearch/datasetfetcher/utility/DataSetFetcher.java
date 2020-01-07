@@ -260,12 +260,12 @@ public class DataSetFetcher implements Runnable {
         ParameterizedSparqlString pss = new ParameterizedSparqlString("" +
                 "PREFIX dcat: <http://www.w3.org/ns/dcat#> " +
                 "PREFIX dct: <http://purl.org/dc/terms/> " +
-                "SELECT (COUNT(DISTINCT ?dataSet) AS ?num)\n" +
-                "WHERE { \n" +
-                "  GRAPH ?g {\n" +
-                "    ?dataSet a dcat:Dataset.\n" +
-                "    FILTER(EXISTS{?dataSet dct:title ?title.})\n" +
-                "  }\n" +
+                "SELECT (COUNT(DISTINCT ?dataSet) AS ?num) " +
+                "WHERE {  " +
+                "  GRAPH ?g { " +
+                "    ?dataSet a dcat:Dataset. " +
+                "    FILTER(EXISTS{?dataSet dct:title ?title.}) " +
+                "  } " +
                 "}");
 
 
