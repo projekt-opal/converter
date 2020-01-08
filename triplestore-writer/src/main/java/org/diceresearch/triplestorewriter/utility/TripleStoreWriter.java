@@ -61,7 +61,7 @@ public class TripleStoreWriter implements CredentialsProvider {
 
     private void writeModel(byte[] bytes) {
         Model model = ModelSerialization.deserialize(bytes);
-        logger.trace("called: writeModel, {}", StructuredArguments.kv("model.graph", model.getGraph()));
+        logger.trace("called: writeModel, {}", StructuredArguments.kv("model", model));
 
         Resource dataSet = null;
         try {

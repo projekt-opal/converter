@@ -28,7 +28,7 @@ public class QualityMetricsCalculator {
     public byte[] calculate(byte[] bytes) {
         try {
             Model model = ModelSerialization.deserialize(bytes);
-            logger.trace("called: calculate, {}", StructuredArguments.kv("model.graph", model.getGraph()));
+            logger.trace("called: calculate, {}", StructuredArguments.kv("model", model));
             ResIterator resIterator = model.listResourcesWithProperty(RDF.type, DCAT.Dataset);
             if (resIterator.hasNext()) {
                 Resource dataSet = resIterator.nextResource();
@@ -52,7 +52,7 @@ public class QualityMetricsCalculator {
 
                 civet.processModel(model, dataSet.getURI());
                 makeOpalConfirmedQualityMeasurements(model, dataSet);
-                logger.trace("return: calculate, {}", StructuredArguments.kv("model.graph", model.getGraph()));
+                logger.trace("return: calculate, {}", StructuredArguments.kv("model", model));
                 return ModelSerialization.serialize(model);
             }
         } catch (Exception e) {
@@ -64,7 +64,7 @@ public class QualityMetricsCalculator {
     private void makeOpalConfirmedQualityMeasurements(Model model, Resource dataSet) {
         logger.trace("called: makeOpalConfirmedQualityMeasurements, {}, {}",
                 StructuredArguments.kv("dataSet", dataSet),
-                StructuredArguments.kv("model.graph", model.getGraph()));
+                StructuredArguments.kv("model", model));
 
         List<Statement> qualityMeasurementStmtIterator = model.listStatements(
                 new SimpleSelector(dataSet, Dqv.HAS_QUALITY_MEASUREMENT, (RDFNode) null)).toList();

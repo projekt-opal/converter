@@ -52,7 +52,7 @@ public class ElasticSearchWriterImpl implements ElasticSearchWriter {
     @Override
     public void write(byte[] bytes) {
         Model model = ModelSerialization.deserialize(bytes);
-        logger.trace("called: write, {}", StructuredArguments.kv("model.graph", model.getGraph()));
+        logger.trace("called: write, {}", StructuredArguments.kv("model", model));
 
         Resource dataSet = null;
 

@@ -32,7 +32,7 @@ public class OpalConfirmer {
         Model model;
         try {
             model = ModelSerialization.deserialize(bytes);
-            logger.trace("called: convert, {}", StructuredArguments.kv("model.graph", model.getGraph()));
+            logger.trace("called: convert, {}", StructuredArguments.kv("model", model));
         } catch (Exception e) {
             logger.error("Exception in deserialize the byte code ", e);
             return bytes;
@@ -57,7 +57,7 @@ public class OpalConfirmer {
 
                 createGeoData(model, dataSet);
 
-                logger.trace("return: convert, {}", StructuredArguments.kv("model.graph", model.getGraph()));
+                logger.trace("return: convert, {}", StructuredArguments.kv("model", model));
                 return ModelSerialization.serialize(model);
             } else {
                 logger.info("The given model doesn't have DCAT:Dataset");
