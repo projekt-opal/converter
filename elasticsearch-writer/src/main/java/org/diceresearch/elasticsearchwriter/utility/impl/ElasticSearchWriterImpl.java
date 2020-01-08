@@ -1,5 +1,6 @@
 package org.diceresearch.elasticsearchwriter.utility.impl;
 
+import net.logstash.logback.argument.StructuredArguments;
 import org.apache.http.HttpHost;
 import org.apache.jena.rdf.model.*;
 import org.apache.jena.vocabulary.DCAT;
@@ -7,6 +8,7 @@ import org.apache.jena.vocabulary.DCTerms;
 import org.apache.jena.vocabulary.RDF;
 import org.dice_research.opal.common.utilities.ModelSerialization;
 import org.dice_research.opal.common.vocabulary.Dqv;
+import org.dice_research.opal.common.vocabulary.Opal;
 import org.diceresearch.elasticsearchwriter.utility.ElasticSearchWriter;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
@@ -25,9 +27,6 @@ import javax.annotation.PostConstruct;
 import javax.xml.bind.DatatypeConverter;
 import java.security.MessageDigest;
 
-import static net.logstash.logback.argument.StructuredArguments.kv;
-import static org.dice_research.opal.common.vocabulary.Opal.originalUri;
-
 @Component
 public class ElasticSearchWriterImpl implements ElasticSearchWriter {
 
@@ -43,6 +42,9 @@ public class ElasticSearchWriterImpl implements ElasticSearchWriter {
 
     @PostConstruct
     public void init() {
+        logger.trace("calld: init, {}, {}", StructuredArguments.kv("url", ELASTIC_SEARCH_URL),
+                StructuredArguments.kv("port", ELASTIC_SEARCH_PORT));
+
         restClient = new RestHighLevelClient(RestClient.builder
                 (new HttpHost(ELASTIC_SEARCH_URL, Integer.parseInt(ELASTIC_SEARCH_PORT), "http")));
     }
@@ -50,6 +52,8 @@ public class ElasticSearchWriterImpl implements ElasticSearchWriter {
     @Override
     public void write(byte[] bytes) {
         Model model = ModelSerialization.deserialize(bytes);
+        logger.trace("called: write, {}", StructuredArguments.kv("model.graph", model.getGraph()));
+
         Resource dataSet = null;
 
         try {
@@ -58,10 +62,12 @@ public class ElasticSearchWriterImpl implements ElasticSearchWriter {
                 dataSet = resIterator.nextResource();
                 String originalUriValue = "";
                 try {
-                    NodeIterator nodeIterator = model.listObjectsOfProperty(dataSet, originalUri);
-                    if(nodeIterator.hasNext()) originalUriValue = nodeIterator.next().toString();
-                } catch (Exception ignored) {}
-                logger.info("{} {}", kv("originalUri", originalUriValue), kv("dataSetUri", dataSet.getURI()));
+                    NodeIterator nodeIterator = model.listObjectsOfProperty(dataSet, Opal.originalUri);
+                    if (nodeIterator.hasNext()) originalUriValue = nodeIterator.next().toString();
+                } catch (Exception ignored) {
+                }
+                logger.info("{} {}", StructuredArguments.kv("originalUri", originalUriValue),
+                        StructuredArguments.kv("dataSetUri", dataSet.getURI()));
 
                 MessageDigest md = MessageDigest.getInstance("MD5");
                 byte[] datasetHashId = md.digest(dataSet.getURI().getBytes());
@@ -118,8 +124,8 @@ public class ElasticSearchWriterImpl implements ElasticSearchWriter {
                     jsonDatasetObject.put(languageStatement.getPredicate().getLocalName(), languageStatement.getObject().toString());
                 }
 
-                StmtIterator licenseIterator = model.listStatements(dataSet, DCTerms.license, (RDFNode)null);
-                if(licenseIterator.hasNext()){
+                StmtIterator licenseIterator = model.listStatements(dataSet, DCTerms.license, (RDFNode) null);
+                if (licenseIterator.hasNext()) {
                     Statement licenseStatement = licenseIterator.nextStatement();
                     jsonDatasetObject.put(licenseStatement.getPredicate().getLocalName(), licenseStatement.getObject().toString());
                 }
@@ -156,13 +162,16 @@ public class ElasticSearchWriterImpl implements ElasticSearchWriter {
             }
         } catch (Exception exception) {
             if (dataSet != null)
-                logger.error("exception {}", kv("datasetUrl", dataSet.getURI()), exception);
+                logger.error("exception {}", StructuredArguments.kv("datasetUrl", dataSet.getURI()), exception);
             else
                 logger.error("exception", exception);
         }
     }
 
     private JSONArray getJSONArray(Model model, Resource dataSet, Property type, String field) {
+        logger.trace("called: getJSONArray, {}, {}, {}, {}", StructuredArguments.kv("model", model),
+                StructuredArguments.kv("dataSet", dataSet), StructuredArguments.kv("type", type),
+                StructuredArguments.kv("field", field));
 
         StmtIterator propertyIterator = model.listStatements(dataSet, type, (RDFNode) null);
         JSONArray propertyArray = new JSONArray();

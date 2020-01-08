@@ -1,5 +1,6 @@
 package org.diceresearch.datasetfetcher.web;
 
+import net.logstash.logback.argument.StructuredArguments;
 import org.diceresearch.datasetfetcher.model.Portal;
 import org.diceresearch.datasetfetcher.model.WorkingStatus;
 import org.diceresearch.datasetfetcher.repository.PortalRepository;
@@ -16,8 +17,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import static net.logstash.logback.argument.StructuredArguments.kv;
 
 @Controller
 public class IndexController {
@@ -52,7 +51,8 @@ public class IndexController {
 
         try {
             logger.info("received request for converting {} {} {} {}",
-                    kv("id", id), kv("lnf", lnf), kv("high", high), kv("step", step));
+                    StructuredArguments.kv("id", id), StructuredArguments.kv("lnf", lnf),
+                    StructuredArguments.kv("high", high), StructuredArguments.kv("step", step));
             if (id != null && !id.isEmpty()) {
                 int i_id = Integer.parseInt(id);
                 Optional<Portal> optionalPortal = portalRepository.findById(i_id);

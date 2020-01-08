@@ -46,7 +46,7 @@ public class OpalConfirmer {
                 // After the dataset URI is changed to Opal format, new URI to be passed for distribution
                 Resource catalog = getCatalog(model);
                 dataSet = makeOpalConfirmedUri(model, catalog, dataSet, DCAT.Dataset, null, "dataset");
-                logger.info("{} {}", kv("originalUri", originalUriValue), kv("dataSetUri", dataSet.getURI()));
+                logger.info("{} {}", StructuredArguments.kv("originalUri", originalUriValue), StructuredArguments.kv("dataSetUri", dataSet.getURI()));
 
                 makeOpalConfirmedUri(model, catalog, dataSet, DCAT.Distribution, DCAT.distribution, "distribution");
 

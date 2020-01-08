@@ -1,5 +1,6 @@
 package org.diceresearch.triplestorewriter.utility;
 
+import net.logstash.logback.argument.StructuredArguments;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -25,8 +26,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import java.nio.charset.StandardCharsets;
 
-import static net.logstash.logback.argument.StructuredArguments.kv;
-import static org.dice_research.opal.common.vocabulary.Opal.originalUri;
+import org.dice_research.opal.common.vocabulary.Opal;
 
 @Component
 public class TripleStoreWriter implements CredentialsProvider {
@@ -45,6 +45,9 @@ public class TripleStoreWriter implements CredentialsProvider {
 
     @PostConstruct
     public void initialize() {
+        logger.trace("called: initialize, {}, {}", StructuredArguments.kv("url", tripleStoreURL),
+                StructuredArguments.kv("username", tripleStoreUsername));
+
         this.credentials = new UsernamePasswordCredentials(tripleStoreUsername, tripleStorePassword);
         HttpClientBuilder clientBuilder = HttpClientBuilder.create();
         clientBuilder.setDefaultCredentialsProvider(this);
@@ -58,6 +61,8 @@ public class TripleStoreWriter implements CredentialsProvider {
 
     private void writeModel(byte[] bytes) {
         Model model = ModelSerialization.deserialize(bytes);
+        logger.trace("called: writeModel, {}", StructuredArguments.kv("model.graph", model.getGraph()));
+
         Resource dataSet = null;
         try {
             ResIterator resIterator = model.listResourcesWithProperty(RDF.type, DCAT.Dataset);
@@ -65,10 +70,11 @@ public class TripleStoreWriter implements CredentialsProvider {
                 dataSet = resIterator.nextResource();
                 String originalUriValue = "";
                 try {
-                    NodeIterator nodeIterator = model.listObjectsOfProperty(dataSet, originalUri);
+                    NodeIterator nodeIterator = model.listObjectsOfProperty(dataSet, Opal.originalUri);
                     if(nodeIterator.hasNext()) originalUriValue = nodeIterator.next().toString();
                 } catch (Exception ignored) {}
-                logger.info("{} {}", kv("originalUri", originalUriValue), kv("dataSetUri", dataSet.getURI()));
+                logger.info("{} {}", StructuredArguments.kv("originalUri", originalUriValue),
+                        StructuredArguments.kv("dataSetUri", dataSet.getURI()));
             }
         } catch (Exception ignored) {
         }
@@ -114,7 +120,7 @@ public class TripleStoreWriter implements CredentialsProvider {
             logger.debug("writing query is: {}", query);
             runInsertQuery(query);
         } catch (Exception e) {
-            logger.error("{}", kv("dataSet+ ", dataSet), e);
+            logger.error("{}", StructuredArguments.kv("dataSet+ ", dataSet), e);
         }
     }
 
