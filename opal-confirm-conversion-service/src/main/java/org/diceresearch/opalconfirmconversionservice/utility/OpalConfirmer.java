@@ -1,5 +1,6 @@
 package org.diceresearch.opalconfirmconversionservice.utility;
 
+import net.logstash.logback.argument.StructuredArguments;
 import org.apache.jena.rdf.model.*;
 import org.apache.jena.rdf.model.impl.SelectorImpl;
 import org.apache.jena.rdf.model.impl.StatementImpl;
@@ -31,6 +32,7 @@ public class OpalConfirmer {
         Model model;
         try {
             model = ModelSerialization.deserialize(bytes);
+            logger.trace("called: convert, {}", StructuredArguments.kv("model.graph", model.getGraph()));
         } catch (Exception e) {
             logger.error("Exception in deserialize the byte code ", e);
             return bytes;
@@ -55,6 +57,7 @@ public class OpalConfirmer {
 
                 createGeoData(model, dataSet);
 
+                logger.trace("return: convert, {}", StructuredArguments.kv("model.graph", model.getGraph()));
                 return ModelSerialization.serialize(model);
             } else {
                 logger.info("The given model doesn't have DCAT:Dataset");
@@ -67,6 +70,8 @@ public class OpalConfirmer {
     }
 
     private void createGeoData(Model model, Resource dataSet) {
+        logger.trace("called: createGeoData, {}, {}", StructuredArguments.kv("model", model),
+                StructuredArguments.kv("dataSet", dataSet));
         try {
             new GeoData().processModel(model, dataSet.getURI());
         } catch (Exception e) {
@@ -75,6 +80,8 @@ public class OpalConfirmer {
     }
 
     private void refineMetadata(Model model, Resource dataSet) {
+        logger.trace("called: refineMetadata, {}, {}", StructuredArguments.kv("model", model),
+                StructuredArguments.kv("dataSet", dataSet));
         try {
             LanguageDetection languageDetection = new LanguageDetection();
             languageDetection.initialize();
@@ -87,18 +94,28 @@ public class OpalConfirmer {
     }
 
     private Resource getCatalog(Model model) {
+        logger.trace("called: getCatalog, {}", StructuredArguments.kv("model", model));
         ResIterator iterator = model.listSubjectsWithProperty(RDF.type, DCAT.Catalog);
+        Resource catalog = null;
         if (iterator.hasNext()) {
-            return iterator.nextResource();
+            catalog = iterator.nextResource();
         }
-        return null;
+        logger.trace("return: getCatalog, {}, {}", StructuredArguments.kv("model", model), StructuredArguments.kv("catalog", catalog));
+        return catalog;
     }
 
     private boolean isNotOpalConfirmed(String uri) {
+        logger.trace("called: isNotOpalConfirmed, {}", StructuredArguments.kv("uri", uri));
         return !uri.startsWith(NS_OPAL);
     }
 
-    private Resource makeOpalConfirmedUri(Model model, Resource catalog, Resource dataSet, Resource classType, Property propertyType, String typeName) {
+    private Resource makeOpalConfirmedUri(Model model, Resource catalog, Resource dataSet, Resource classType,
+                                          Property propertyType, String typeName) {
+        logger.trace("called: makeOpalConfirmedUri, {}, {}, {}, {}, {}, {}",
+                StructuredArguments.kv("model", model), StructuredArguments.kv("catalog", catalog),
+                StructuredArguments.kv("dataSet", dataSet), StructuredArguments.kv("classType", classType),
+                StructuredArguments.kv("propertyType", propertyType), StructuredArguments.kv("typeName", typeName));
+
         ResIterator resIterator = model.listResourcesWithProperty(RDF.type, classType);
         Resource newResource = null;
         while (resIterator.hasNext()) {
@@ -128,14 +145,16 @@ public class OpalConfirmer {
     }
 
     private Resource generateOpalConfirmedUrl(Resource catalog, Resource resource, String type) {
+        logger.trace("called: generateOpalConfirmedUrl, {}, {}, {}", StructuredArguments.kv("catalog", catalog),
+                StructuredArguments.kv("resource", resource), StructuredArguments.kv("type", type));
         String s = resource.getURI();
-//        if (type.equals("dataset")) {
         s = catalog.getLocalName().concat(s);
         s = Hash.md5(s);
-//        } else {
-//            String pattern = "[^a-zA-Z0-9]";
-//            s = s.replaceAll(pattern, "_");
-//        }
-        return ResourceFactory.createResource(NS_OPAL + type + "/" + s);
+        String confirmedUri = NS_OPAL + type + "/" + s;
+        logger.trace("return: generateOpalConfirmedUrl, {}, {}, {}, {}",
+                StructuredArguments.kv("confirmedUri", confirmedUri), StructuredArguments.kv("catalog", catalog),
+                StructuredArguments.kv("resource", resource), StructuredArguments.kv("type", type));
+
+        return ResourceFactory.createResource(confirmedUri);
     }
 }
