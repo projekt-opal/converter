@@ -1,7 +1,7 @@
 #!/bin/bash
-mvn clean install -Pprod
+mvn clean install
 docker-compose build
-docker-compose up -d rabbitmq mysql es discovery-server
+docker-compose up -d rabbitmq es discovery-server
 echo ==============
 echo please add ex_logstash and bind q_logstash to it
 echo ==============

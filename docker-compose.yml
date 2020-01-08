@@ -54,20 +54,6 @@ services:
     depends_on:
       - rabbitmq
       - es
-  mysql:
-    image: mysql:8.0.17
-    environment:
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-      - MYSQL_DATABASE=opal
-    ports:
-      - 3306:3306
-    volumes:
-      - mysqldata:/var/lib/mysql
-    healthcheck:
-      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
-      interval: 2s
-      timeout: 20s
-      retries: 30
   discovery-server:
     build: discovery-server
     ports:
@@ -86,6 +72,7 @@ services:
       - 8001:8001
     volumes:
       - logvolume1:/var/log/converter/
+      - h2data:/db
     environment:
       - RABBITMQ_ADDRESS=rabbitmq
       - RABBITMQ_PORT=5672
@@ -95,14 +82,13 @@ services:
       - CRAWLER_TRIPLESTORE_USERNAME=${CRAWLER_TRIPLESTORE_USERNAME}
       - CRAWLER_TRIPLESTORE_PASSWORD=${CRAWLER_TRIPLESTORE_PASSWORD}
       - EUREKA_URL=http://discovery-server:8761/eureka/
-      - DATABASE_URL=mysql
-      - DATABASE_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - H2_DB_PASSWORD=${H2_DB_PASSWORD}
+      - H2_DB_PATH=/db
     depends_on:
       - rabbitmq
       - logstash
       - discovery-server
       - config-server
-      - mysql
   opal-confirm-conversion-service:
     build: opal-confirm-conversion-service
     volumes:
@@ -217,7 +203,7 @@ volumes:
   rabbitmqdata:
   esdata01:
   eslog:
-  mysqldata:
+  h2data:
   logvolume1:
   logvolume2:
   logvolume3:
