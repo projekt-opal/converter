@@ -120,7 +120,7 @@ public class TripleStoreWriter implements CredentialsProvider {
             logger.debug("writing query is: {}", query);
             runInsertQuery(query);
         } catch (Exception e) {
-            logger.error("{}", StructuredArguments.kv("dataSet+ ", dataSet), e);
+            logger.error("{}", StructuredArguments.kv("dataSet", dataSet), e);
         }
     }
 
