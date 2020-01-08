@@ -5,10 +5,10 @@
     <parent>
         <groupId>org.dice-research</groupId>
         <artifactId>converter</artifactId>
-        <version>0.0.1</version>
+        <version>1.0.0</version>
     </parent>
     <artifactId>quality-metrics-service</artifactId>
-    <version>0.0.1</version>
+    <version>1.0.0</version>
     <name>quality-metrics-service</name>
     <description>CIVET component is called to calculate quality of different metrics of metadata of each dataset
     </description>

@@ -5,10 +5,10 @@
     <parent>
         <groupId>org.dice-research</groupId>
         <artifactId>converter</artifactId>
-        <version>0.0.1</version>
+        <version>1.0.0</version>
     </parent>
     <artifactId>opal-confirm-conversion-service</artifactId>
-    <version>0.0.1</version>
+    <version>1.0.0</version>
     <name>opal-confirm-conversion-service</name>
     <description>unified vocabulary of all datasets' rdf to opal confirm defined vocabulary</description>
 
