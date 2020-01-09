@@ -82,6 +82,7 @@ services:
       - CRAWLER_TRIPLESTORE_USERNAME=${CRAWLER_TRIPLESTORE_USERNAME}
       - CRAWLER_TRIPLESTORE_PASSWORD=${CRAWLER_TRIPLESTORE_PASSWORD}
       - EUREKA_URL=http://discovery-server:8761/eureka/
+      - CONFIG_SERVER_URL=http://config-server:8888
       - H2_DB_PASSWORD=${H2_DB_PASSWORD}
       - H2_DB_PATH=/db
     depends_on:
@@ -99,6 +100,7 @@ services:
       - RABBITMQ_USERNAME=${RABBITMQ_USERNAME}
       - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
       - EUREKA_URL=http://discovery-server:8761/eureka/
+      - CONFIG_SERVER_URL=http://config-server:8888
     depends_on:
       - rabbitmq
       - logstash
@@ -115,6 +117,7 @@ services:
       - RABBITMQ_USERNAME=${RABBITMQ_USERNAME}
       - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
       - EUREKA_URL=http://discovery-server:8761/eureka/
+      - CONFIG_SERVER_URL=http://config-server:8888
     depends_on:
       - rabbitmq
       - logstash
@@ -132,6 +135,7 @@ services:
       - RABBITMQ_USERNAME=${RABBITMQ_USERNAME}
       - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
       - EUREKA_URL=http://discovery-server:8761/eureka/
+      - CONFIG_SERVER_URL=http://config-server:8888
     depends_on:
       - rabbitmq
       - logstash
@@ -149,6 +153,7 @@ services:
       - RABBITMQ_USERNAME=${RABBITMQ_USERNAME}
       - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
       - EUREKA_URL=http://discovery-server:8761/eureka/
+      - CONFIG_SERVER_URL=http://config-server:8888
     depends_on:
       - rabbitmq
       - logstash
@@ -166,6 +171,7 @@ services:
       - RABBITMQ_USERNAME=${RABBITMQ_USERNAME}
       - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
       - EUREKA_URL=http://discovery-server:8761/eureka/
+      - CONFIG_SERVER_URL=http://config-server:8888
       - OPAL_TRIPLESTORE_URL=${OPAL_TRIPLESTORE_URL}
       - OPAL_TRIPLESTORE_USERNAME=${OPAL_TRIPLESTORE_USERNAME}
       - OPAL_TRIPLESTORE_PASSWORD=${OPAL_TRIPLESTORE_PASSWORD}
@@ -189,6 +195,7 @@ services:
       - RABBITMQ_USERNAME=${RABBITMQ_USERNAME}
       - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
       - EUREKA_URL=http://discovery-server:8761/eureka/
+      - CONFIG_SERVER_URL=http://config-server:8888
       - OPAL_ELASTICSEARCH_URL=opaldata.cs.upb.de
       - OPAL_ELASTICSEARCH_PORT=9200
     depends_on:
