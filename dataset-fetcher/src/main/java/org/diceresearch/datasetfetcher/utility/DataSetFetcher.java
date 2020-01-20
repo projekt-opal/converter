@@ -15,6 +15,7 @@ import org.diceresearch.datasetfetcher.model.Portal;
 import org.diceresearch.datasetfetcher.model.WorkingStatus;
 import org.diceresearch.datasetfetcher.repository.PortalRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -35,6 +36,8 @@ public class DataSetFetcher implements Runnable {
     private Resource portalResource;
     private Integer portalId;
 
+    @Value("${querywithgraph}")
+    private boolean queryWithGraph;
 
     @Autowired
     public DataSetFetcher(PortalRepository portalRepository, QueryExecutionFactoryHttpProvider queryExecutionFactoryHttpProvider, SourceWithDynamicDestination sourceWithDynamicDestination) {
@@ -180,10 +183,10 @@ public class DataSetFetcher implements Runnable {
                     "PREFIX dct: <http://purl.org/dc/terms/> " +
                     "SELECT ?catalog " +
                     "WHERE { " +
-                    "  GRAPH ?g { " +
+                    ( this.queryWithGraph ? "  GRAPH ?g { " : "") +
                         "?catalog a dcat:Catalog ." +
                         "?catalog dcat:dataset ?dataSet . " +
-                      "} " +
+                    ( this.queryWithGraph ?  "} " : "") +
                     "}");
             pss.setParam("dataSet", dataSet);
             catalog = getCatalog(pss);
@@ -223,10 +226,10 @@ public class DataSetFetcher implements Runnable {
                 "CONSTRUCT { " + "?dataSet ?predicate ?object . " +
                 "?object ?p2 ?o2} " +
                 "WHERE { " +
-                "  GRAPH ?g { " +
+                ( this.queryWithGraph ? "  GRAPH ?g { " : "") +
                 "    ?dataSet ?predicate ?object. " +
                 "    OPTIONAL { ?object ?p2 ?o2 } " +
-                "  } " +
+                ( this.queryWithGraph ?  "} " : "") +
                 "}");
 
         pss.setParam("dataSet", dataSet);
@@ -261,10 +264,10 @@ public class DataSetFetcher implements Runnable {
                 "PREFIX dct: <http://purl.org/dc/terms/> " +
                 "SELECT (COUNT(DISTINCT ?dataSet) AS ?num) " +
                 "WHERE {  " +
-                "  GRAPH ?g { " +
+                ( this.queryWithGraph ? "  GRAPH ?g { " : "") +
                 "    ?dataSet a dcat:Dataset. " +
                 "    FILTER(EXISTS{?dataSet dct:title ?title.}) " +
-                "  } " +
+                ( this.queryWithGraph ?  "} " : "") +
                 "}");
 
 
@@ -282,10 +285,10 @@ public class DataSetFetcher implements Runnable {
                 "PREFIX dct: <http://purl.org/dc/terms/> " +
                 "SELECT DISTINCT ?dataSet " +
                 "WHERE {  " +
-                "  GRAPH ?g { " +
+                ( this.queryWithGraph ? "  GRAPH ?g { " : "") +
                     " ?dataSet a dcat:Dataset. " +
                     " FILTER(EXISTS{?dataSet dct:title ?title.}) " +
-                "  } " +
+                ( this.queryWithGraph ?  "} " : "") +
                 "} " +
                 "ORDER BY ?dataSet " +
                 " OFFSET " + idx +
