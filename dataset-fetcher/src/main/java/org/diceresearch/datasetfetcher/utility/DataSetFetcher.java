@@ -67,7 +67,7 @@ public class DataSetFetcher implements Runnable {
 
     private boolean doFetching() {
         Portal portal = portalRepository.findById(portalId).get();
-        log.trace("doFetching {}", StructuredArguments.kv("portal", portal));
+        log.info("doFetching {}", StructuredArguments.kv("portal", portal));
         for (int idx = portal.getLastNotFetched(); idx < portal.getHigh(); idx += portal.getStep()) {
             portal = portalRepository.findById(portalId).get();
             updateLastNotFetched(portal, idx);
@@ -134,7 +134,6 @@ public class DataSetFetcher implements Runnable {
 
         int totalNumberOfDataSets = getTotalNumberOfDataSets();
         if (totalNumberOfDataSets == -1) throw new Exception("Cannot Query the TripleStore");
-
         tuningHigh(portal, totalNumberOfDataSets);
         portal.setWorkingStatus(WorkingStatus.RUNNING);
         portalRepository.save(portal);
