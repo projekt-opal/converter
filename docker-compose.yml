@@ -71,7 +71,6 @@ services:
     ports:
       - 8001:8001
     volumes:
-      - logvolume1:/var/log/converter/
       - h2data:/db
     environment:
       - RABBITMQ_ADDRESS=rabbitmq
@@ -92,8 +91,10 @@ services:
       - config-server
   opal-confirm-conversion-service:
     build: opal-confirm-conversion-service
-    volumes:
-      - logvolume1:/var/log/converter/
+#    volumes:
+#      - logvolume1:/var/log/converter/
+    ports:
+      - 8002
     environment:
       - RABBITMQ_ADDRESS=rabbitmq
       - RABBITMQ_PORT=5672
@@ -109,44 +110,10 @@ services:
       - dataset-fetcher
   quality-metrics-service:
     build: quality-metrics-service
-    volumes:
-      - logvolume1:/var/log/converter/
-    environment:
-      - RABBITMQ_ADDRESS=rabbitmq
-      - RABBITMQ_PORT=5672
-      - RABBITMQ_USERNAME=${RABBITMQ_USERNAME}
-      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
-      - EUREKA_URL=http://discovery-server:8761/eureka/
-      - CONFIG_SERVER_URL=http://config-server:8888
-    depends_on:
-      - rabbitmq
-      - logstash
-      - discovery-server
-      - config-server
-      - dataset-fetcher
-      - opal-confirm-conversion-service
-  quality-metrics-service_replica_1:
-    build: quality-metrics-service
-    volumes:
-      - logvolume2:/var/log/converter/
-    environment:
-      - RABBITMQ_ADDRESS=rabbitmq
-      - RABBITMQ_PORT=5672
-      - RABBITMQ_USERNAME=${RABBITMQ_USERNAME}
-      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
-      - EUREKA_URL=http://discovery-server:8761/eureka/
-      - CONFIG_SERVER_URL=http://config-server:8888
-    depends_on:
-      - rabbitmq
-      - logstash
-      - discovery-server
-      - config-server
-      - dataset-fetcher
-      - opal-confirm-conversion-service
-  quality-metrics-service_replica_2:
-    build: quality-metrics-service
-    volumes:
-      - logvolume3:/var/log/converter/
+#    volumes:
+#      - logvolume1:/var/log/converter/
+    ports:
+      - 8003
     environment:
       - RABBITMQ_ADDRESS=rabbitmq
       - RABBITMQ_PORT=5672
@@ -163,8 +130,10 @@ services:
       - opal-confirm-conversion-service
   triplestore-writer:
     build: triplestore-writer
-    volumes:
-      - logvolume1:/var/log/converter/
+#    volumes:
+#      - logvolume1:/var/log/converter/
+    ports:
+      - 8004
     environment:
       - RABBITMQ_ADDRESS=rabbitmq
       - RABBITMQ_PORT=5672
@@ -187,8 +156,10 @@ services:
       - quality-metrics-service
   elasticsearch-writer:
     build: elasticsearch-writer
-    volumes:
-      - logvolume1:/var/log/converter/
+#    volumes:
+#      - logvolume1:/var/log/converter/
+    ports:
+      - 8005
     environment:
       - RABBITMQ_ADDRESS=rabbitmq
       - RABBITMQ_PORT=5672
@@ -211,6 +182,6 @@ volumes:
   esdata01:
   eslog:
   h2data:
-  logvolume1:
-  logvolume2:
-  logvolume3:
+#  logvolume1:
+#  logvolume2:
+#  logvolume3:
