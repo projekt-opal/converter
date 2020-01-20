@@ -33,15 +33,15 @@ public class DBHelper {
         Iterable<Portal> portals = portalRepository.findAll();
         if (!portals.iterator().hasNext()) {
             portalRepository.save(Portal.builder().name("mcloud").lastNotFetched(0).high(-1)
-                    .queryAddress(tripleStoreURL+"/mcloud/query")
+                    .queryAddress(tripleStoreURL+"mcloud/query")
                     .username(tripleStoreUsername).password(tripleStorePassword)
                     .outputQueue("dataset-graph").workingStatus(WorkingStatus.IDLE).step(100).build());
             portalRepository.save(Portal.builder().name("govdata").lastNotFetched(0).high(-1)
-                    .queryAddress(tripleStoreURL+"/govdata/query")
+                    .queryAddress(tripleStoreURL+"govdata/query")
                     .username(tripleStoreUsername).password(tripleStorePassword)
                     .outputQueue("dataset-graph").workingStatus(WorkingStatus.IDLE).step(100).build());
             portalRepository.save(Portal.builder().name("europeandataportal").lastNotFetched(0).high(-1)
-                    .queryAddress(tripleStoreURL+"/europeandataportal/query")
+                    .queryAddress(tripleStoreURL+"europeandataportal/query")
                     .username(tripleStoreUsername).password(tripleStorePassword)
                     .outputQueue("dataset-graph").workingStatus(WorkingStatus.IDLE).step(100).build());
         }

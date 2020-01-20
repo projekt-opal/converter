@@ -102,7 +102,7 @@ public class IndexController {
 
     @GetMapping("/addRecord")
     public String add(@ModelAttribute Portal portal) {
-        logger.info(portal.toString());
+        logger.info("new record: {}", StructuredArguments.kv("portal", portal));
         portal.setLastNotFetched(0);
         portal.setHigh(-1);
         portal.setStep(100);
