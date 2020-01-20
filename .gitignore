@@ -93,3 +93,4 @@ secrets.yml
 /config-server/.mvn/
 /config-server/mvnw
 /config-server/mvnw.cmd
+/OpenNLP.model.langdetect-183.bin

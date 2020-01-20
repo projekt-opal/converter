@@ -49,7 +49,7 @@ services:
       - XPACK_MONITORING_ENABLED=false
       - XPACK_MONITORING_ELASTICSEARCH_HOSTS=""
     ports:
-      - 5000:5000
+      - 5000
     command: logstash -f /config-dir/logstash.conf
     depends_on:
       - rabbitmq

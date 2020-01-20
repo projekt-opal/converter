@@ -12,6 +12,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.Optional;
@@ -77,7 +78,7 @@ public class IndexController {
     }
 
     @GetMapping("/cancel")
-    public String convert(@RequestParam(name = "id") String id) {
+    public String cancel(@RequestParam(name = "id") String id) {
         try {
             Integer i_id = Integer.parseInt(id);
             Optional<Portal> optionalPortal = portalRepository.findById(i_id);
@@ -91,5 +92,25 @@ public class IndexController {
         return "redirect:/";
     }
 
+
+    @GetMapping("addPage")
+    public String getAddPage(Model model) {
+        Portal portal = Portal.builder().build();
+        model.addAttribute("portal", portal);
+        return "add.html";
+    }
+
+    @GetMapping("/addRecord")
+    public String add(@ModelAttribute Portal portal) {
+        logger.info(portal.toString());
+        portal.setLastNotFetched(0);
+        portal.setHigh(-1);
+        portal.setStep(100);
+        portal.setWorkingStatus(WorkingStatus.IDLE);
+        if(portal.getOutputQueue().isEmpty())
+            portal.setOutputQueue("dataset-graph");
+        portalRepository.save(portal);
+        return "redirect:/";
+    }
 
 }
