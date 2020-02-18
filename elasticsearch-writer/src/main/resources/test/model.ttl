@@ -1,0 +1,91 @@
+@prefix dcat:  <http://www.w3.org/ns/dcat#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+
+<http://projekt-opal.de/distribution/https___www_geoseaportal_de_atomfeeds_MO_H_SECCI_xml_distribution>
+        a                 dcat:Distribution ;
+        <http://purl.org/dc/terms/license>
+                <http://dcat-ap.de/def/licenses/dl-by-de/2.0> ;
+        dcat:accessURL    <https://www.geoseaportal.de/atomfeeds/MO_H_SECCI.xml> ;
+        dcat:downloadURL  <https://www.geoseaportal.de/atomfeeds/MO_H_SECCI.xml> .
+
+<http://projekt-opal.de/measurement3>
+        a       <http://www.w3.org/ns/dqv#QualityMeasurement> ;
+        <http://www.w3.org/ns/dqv#isMeasurementOf>
+                <http://metric.projekt-opal.de/MultipleSerializations> , <http://metric.projekt-opal.de/Categorization> ;
+        <http://www.w3.org/ns/dqv#value>
+                3 , 0 .
+
+<http://projekt-opal.de/measurement1>
+        a       <http://www.w3.org/ns/dqv#QualityMeasurement> ;
+        <http://www.w3.org/ns/dqv#isMeasurementOf>
+                <http://metric.projekt-opal.de/MultipleSerializations> , <http://metric.projekt-opal.de/Categorization> ;
+        <http://www.w3.org/ns/dqv#value>
+                4 , 0 .
+
+<http://publications.europa.eu/resource/authority/data-theme/ENVI>
+        a       <http://www.w3.org/2004/02/skos/core#Concept> ;
+        <http://www.w3.org/2004/02/skos/core#inSchema>
+                <http://publications.europa.eu/resource/authority/data-theme/> ;
+        <http://www.w3.org/2004/02/skos/core#inScheme>
+                <http://publications.europa.eu/resource/authority/data-theme> ;
+        <http://www.w3.org/2004/02/skos/core#prefLabel>
+                "Miljø" , "Umwelt"@de , "Environment"@en .
+
+<http://projekt-opal.de/measurement2>
+        a       <http://www.w3.org/ns/dqv#QualityMeasurement> ;
+        <http://www.w3.org/ns/dqv#isMeasurementOf>
+                <http://metric.projekt-opal.de/DataFormat> , <http://metric.projekt-opal.de/MetadataQuality> ;
+        <http://www.w3.org/ns/dqv#value>
+                2 , 0 .
+
+<http://projekt-opal.de/dataset/860c6a883f94c2bd5d3ae4ef6deb3538>
+        a                  dcat:Dataset ;
+        <file:///home/gsjunior/git/Squirrel/squirrel.worker/rdf/xml>
+                <https://mcloud.de/export/datasets/03d2fc1d-7d8f-48e2-a2ab-585ff9b2778d> ;
+        <http://dcat-ap.de/def/dcatde/1.0.1/contributorID>
+                <http://dcat-ap.de/def/contributors/mCloud> ;
+        <http://dcat-ap.de/def/dcatde/1.0.1/originator>
+                [ a       <http://xmlns.com/foaf/0.1/Organization> ;
+                  <http://xmlns.com/foaf/0.1/name>
+                          "Susanne Tamm"
+                ] ;
+        <http://projekt-opal.de/originalUri>
+                <https://mcloud.de/web/guest/suche/-/results/detail/03d2fc1d-7d8f-48e2-a2ab-585ff9b2778d> ;
+        <http://purl.org/dc/terms/creator>
+                [ a       <http://xmlns.com/foaf/0.1/Organization> ;
+                  <http://xmlns.com/foaf/0.1/name>
+                          "Bundesamt für Seeschifffahrt und Hydrographie (BSH)"
+                ] ;
+        <http://purl.org/dc/terms/description>
+                "Im Rahmen des gemeinsames Bund/Länder-Messprogramm für die Nord- und Ostsee + weitere Überwachungsprogramme wurde der Parameter \"Secchi Tiefe (Sichttiefe)\" im Meerwasser bestimmt."@de ;
+        <http://purl.org/dc/terms/identifier>
+                "03d2fc1d-7d8f-48e2-a2ab-585ff9b2778d" ;
+        <http://purl.org/dc/terms/modified>
+                "2019-03-04T12:39:11Z"^^<http://www.w3.org/2001/XMLSchema#date> ;
+        <http://purl.org/dc/terms/publisher>
+                [ a       <http://xmlns.com/foaf/0.1/Agent> ;
+                  <http://xmlns.com/foaf/0.1/name>
+                          "Bundesamt für Seeschifffahrt und Hydrographie (BSH)"
+                ] ;
+        <http://purl.org/dc/terms/title>
+                "Secchi Tiefe (Sichttiefe) 2018"@de ;
+        dcat:distribution  <http://projekt-opal.de/distribution/https___www_geoseaportal_de_atomfeeds_MO_H_SECCI_xml_distribution> ;
+        dcat:landingPage   <http://www.statistik-nord.de> ;
+        dct:language     <http://publications.europa.eu/resource/authority/language/GER> ;
+        dcat:keyword       "mCLOUD-Kategorie Wasserstraßen und Gewässer"@de ;
+        dct:issued       "2010-03-18"^^<http://www.w3.org/2001/XMLSchema#date> ;
+        dcat:theme         <http://publications.europa.eu/resource/authority/data-theme/ENVI> ;
+        dcat:contactPoint  <http://www.w3.org/2006/vcard/ns#Kind/c8e73a4b-d4e2-4034-9d38-d880fd813018> ;
+        <http://www.w3.org/ns/dqv#hasQualityMeasurement>
+                <http://projekt-opal.de/measurement3> , <http://projekt-opal.de/measurement2> , <http://projekt-opal.de/measurement1> .
+
+        <http://www.w3.org/2006/vcard/ns#Kind/c8e73a4b-d4e2-4034-9d38-d880fd813018>
+                a       <http://www.w3.org/2006/vcard/ns#Kind> ;
+                <http://www.w3.org/2006/vcard/ns#hasAddress>
+                        <http://www.w3.org/2006/vcard/ns#Address/c6f78c87-7291-4b26-8123-a9398b3f6f6e> ;
+                <http://www.w3.org/2006/vcard/ns#hasTelephone>
+                        <http://www.w3.org/2006/vcard/ns#Voice/69b1c7ec-5fc5-4d1c-a8e9-374c5b6cc784> ;
+                <http://www.w3.org/2006/vcard/ns#organisation-name>
+                        "Eurostat, the statistical office of the European Union" ;
+                <http://xmlns.com/foaf/0.1/homePage>
+                        <http://data.europa.eu/88u/document/bcc58ce6-4bbd-464d-b68e-ca191fdc3a96> .
