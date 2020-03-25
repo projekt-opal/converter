@@ -49,6 +49,7 @@
 		<module>triplestore-writer</module>
 		<module>elasticsearch-writer</module>
 		<module>config-server</module>
+		<module>dataset-file-fetcher</module>
 	</modules>
 
 </project>
