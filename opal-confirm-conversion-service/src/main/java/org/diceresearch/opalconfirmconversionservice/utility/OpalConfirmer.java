@@ -8,6 +8,7 @@ import org.apache.jena.vocabulary.DCAT;
 import org.apache.jena.vocabulary.RDF;
 import org.dice_research.opal.common.utilities.Hash;
 import org.dice_research.opal.common.utilities.ModelSerialization;
+import org.dice_research.opal.common.vocabulary.Opal;
 import org.dice_research.opal.metadata.GeoData;
 import org.dice_research.opal.metadata.LanguageDetection;
 import org.slf4j.Logger;
@@ -17,9 +18,7 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
-import static net.logstash.logback.argument.StructuredArguments.kv;
 import static org.dice_research.opal.common.vocabulary.Opal.NS_OPAL;
-import static org.dice_research.opal.common.vocabulary.Opal.originalUri;
 
 @Component
 public class OpalConfirmer {
@@ -41,7 +40,7 @@ public class OpalConfirmer {
             ResIterator resIterator = model.listResourcesWithProperty(RDF.type, DCAT.Dataset);
             if (resIterator.hasNext()) {
                 Resource dataSet = resIterator.nextResource();
-                model.add(dataSet, originalUri, dataSet);
+                model.add(dataSet, Opal.PROP_ORIGINAL_URI, dataSet);
                 String originalUriValue = dataSet.getURI();
                 // After the dataset URI is changed to Opal format, new URI to be passed for distribution
                 Resource catalog = getCatalog(model);

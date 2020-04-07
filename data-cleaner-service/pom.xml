@@ -1,16 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.dice-research</groupId>
         <artifactId>converter</artifactId>
         <version>1.0.0</version>
     </parent>
-    <artifactId>opal-confirm-conversion-service</artifactId>
-    <version>1.0.0</version>
-    <name>opal-confirm-conversion-service</name>
-    <description>unified vocabulary of all datasets' rdf to opal confirm defined vocabulary</description>
+    <groupId>org.diceresearch</groupId>
+    <artifactId>data-cleaner-service</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>data-cleaner-service</name>
+    <description>Removes empty blank nodes and keeps opal vocabulary RDFs</description>
+
+    <properties>
+        <java.version>1.8</java.version>
+    </properties>
 
     <repositories>
         <repository>
@@ -27,54 +32,38 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-config</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
         </dependency>
+
         <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-config</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.junit.vintage</groupId>
+                    <artifactId>junit-vintage-engine</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-stream</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-stream-rabbit</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-stream-test-support</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.dice-research.opal</groupId>
-            <artifactId>metadata-refinement</artifactId>
-            <version>[1,2)</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-log4j12</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
             <groupId>org.dice-research.opal</groupId>
             <artifactId>common</artifactId>
             <version>1.1.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.dice-research.opal</groupId>
+            <artifactId>catfish</artifactId>
+            <version>[1,2)</version>
         </dependency>
     </dependencies>
 
