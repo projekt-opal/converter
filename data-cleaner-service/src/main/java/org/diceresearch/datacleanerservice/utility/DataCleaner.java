@@ -32,6 +32,7 @@ public class DataCleaner {
             if (resIterator.hasNext()) {
                 Resource dataSet = resIterator.nextResource();
                 catfish.processModel(model, dataSet.getURI());
+                return ModelSerialization.serialize(model);
             }
         } catch (Exception e) {
             logger.error("Exception in cleaning th model", e);
