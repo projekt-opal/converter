@@ -75,6 +75,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.elasticsearch.client</groupId>
+            <artifactId>elasticsearch-rest-client</artifactId>
+            <version>${elasticsearch.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.dice-research.opal</groupId>
             <artifactId>common</artifactId>
             <version>[1,2)</version>

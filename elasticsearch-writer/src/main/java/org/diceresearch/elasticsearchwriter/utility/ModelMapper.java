@@ -255,7 +255,7 @@ public class ModelMapper {
                             StructuredArguments.kv("dataSetUri", dataSetUri),
                             StructuredArguments.kv("rights", rightsNode.toString()));
 
-                    distribution.getRights().add(rightsNode.asResource().getURI());
+                    distribution.getRights().add(rightsNode.asLiteral().getString());
                 }
 
                 log.trace("setDistributions, {}, {}",
