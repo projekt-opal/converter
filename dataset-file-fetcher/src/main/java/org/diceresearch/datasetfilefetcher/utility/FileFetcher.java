@@ -3,6 +3,10 @@ package org.diceresearch.datasetfilefetcher.utility;
 
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.rdf.model.ResourceFactory;
+import org.apache.jena.vocabulary.DCAT;
+import org.apache.jena.vocabulary.RDF;
 import org.dice_research.opal.common.utilities.ModelSerialization;
 import org.diceresearch.datasetfilefetcher.messaging.SourceWithDynamicDestination;
 import org.slf4j.Logger;
@@ -24,7 +28,9 @@ public class FileFetcher {
     private final SourceWithDynamicDestination sourceWithDynamicDestination;
     @Value("${RDF_FILES_PATH}")
     private String path;
-    private String outputQueue = "dataset-graph";
+    @Value("${PORTAL}")
+    private String portal;
+    private final String outputQueue = "dataset-graph";
 
     @Autowired
     public FileFetcher(SourceWithDynamicDestination sourceWithDynamicDestination) {
@@ -32,17 +38,20 @@ public class FileFetcher {
     }
 
     public void fetch() {
+
         Path dir = Paths.get(path);
+        Resource portalResource = ResourceFactory.createResource("http://projekt-opal.de/catalog/" + portal);
         try {
             Stream<Path> list = Files.list(dir);
             list.forEach(file -> {
                 try {
                     Model model = ModelFactory.createDefaultModel();
-                    model.read(file.toString());
+                    model.read(file.toString(), "NT");
+                    model.add(portalResource, RDF.type, DCAT.Catalog);
                     byte[] serialize = ModelSerialization.serialize(model);
                     sourceWithDynamicDestination.sendMessage(serialize, outputQueue);
                 } catch (Exception e) {
-                    System.out.println("error");
+                    logger.error("", e);
                 }
             });
         } catch (IOException e) {
