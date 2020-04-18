@@ -74,7 +74,7 @@ public class ModelMapper {
                     log.trace("setTemporal, {}, {}",
                             StructuredArguments.kv("dataSetUri", dataSetUri),
                             StructuredArguments.kv("startDate", startDateNode.toString()));
-                    temporal.setStartDate(startDateNode.asLiteral().getString());
+                    temporal.setStartDate(getStringValue(startDateNode));
                 }
                 NodeIterator endDateIterator = model.listObjectsOfProperty(resource, DCAT.endDate);
                 if (endDateIterator.hasNext()) {
@@ -83,7 +83,7 @@ public class ModelMapper {
                             StructuredArguments.kv("dataSetUri", dataSetUri),
                             StructuredArguments.kv("endDate", endDateNode.toString()));
 
-                    temporal.setEndDate(endDateNode.asLiteral().getString());
+                    temporal.setEndDate(getStringValue(endDateNode));
                 }
                 dataSet.setTemporal(temporal);
             } catch (NoSuchElementException e) {
@@ -101,7 +101,7 @@ public class ModelMapper {
                 log.trace("setDcatIdentifierPeriodicity, {}, {}",
                         StructuredArguments.kv("dataSetUri", dataSetUri),
                         StructuredArguments.kv("identifier", identifierNode.toString()));
-                dataSet.setDcatIdentifier(identifierNode.asLiteral().getString());
+                dataSet.setDcatIdentifier(getStringValue(identifierNode));
             } catch (NoSuchElementException e) {
                 log.error("", e);
             }
@@ -118,7 +118,7 @@ public class ModelMapper {
                 log.trace("setAccrualPeriodicity, {}, {}",
                         StructuredArguments.kv("dataSetUri", dataSetUri),
                         StructuredArguments.kv("accrualPeriodicity", accrualPeriodicityNode.toString()));
-                dataSet.setAccrualPeriodicity(accrualPeriodicityNode.asResource().getURI());
+                dataSet.setAccrualPeriodicity(getStringValue(accrualPeriodicityNode)); //hint once with Literal "Other"
             } catch (NoSuchElementException e) {
                 log.error("", e);
             }
@@ -151,7 +151,7 @@ public class ModelMapper {
                             StructuredArguments.kv("dataSetUri", dataSetUri),
                             StructuredArguments.kv("originalUrl", originalUrlNode.toString()));
 
-                    distribution.getOriginalUrls().add(originalUrlNode.asLiteral().getString());
+                    distribution.getOriginalUrls().add(getStringValue(originalUrlNode));
                 }
 
                 NodeIterator titleIterator = model.listObjectsOfProperty(resource, DCTerms.title);
@@ -160,7 +160,7 @@ public class ModelMapper {
                     log.trace("setDistributions, {}, {}",
                             StructuredArguments.kv("dataSetUri", dataSetUri),
                             StructuredArguments.kv("title", titleNode.toString()));
-                    distribution.setTitle(titleNode.asLiteral().getString());
+                    distribution.setTitle(getStringValue(titleNode));
                 }
 
                 NodeIterator descriptionIterator = model.listObjectsOfProperty(resource, DCTerms.description);
@@ -170,7 +170,7 @@ public class ModelMapper {
                             StructuredArguments.kv("dataSetUri", dataSetUri),
                             StructuredArguments.kv("description", descriptionNode.toString()));
 
-                    distribution.setDescription(descriptionNode.asLiteral().getString());
+                    distribution.setDescription(getStringValue(descriptionNode));
                 }
 
                 NodeIterator issuedIterator = model.listObjectsOfProperty(resource, DCTerms.issued);
@@ -180,7 +180,7 @@ public class ModelMapper {
                             StructuredArguments.kv("dataSetUri", dataSetUri),
                             StructuredArguments.kv("issued", issuedNode.toString()));
 
-                    distribution.setIssued(issuedNode.asLiteral().getString());
+                    distribution.setIssued(getStringValue(issuedNode));
                 }
 
                 NodeIterator modifiedIterator = model.listObjectsOfProperty(resource, DCTerms.modified);
@@ -190,7 +190,7 @@ public class ModelMapper {
                             StructuredArguments.kv("dataSetUri", dataSetUri),
                             StructuredArguments.kv("modified", modifiedNode.toString()));
 
-                    distribution.setModified(modifiedNode.asLiteral().getString());
+                    distribution.setModified(getStringValue(modifiedNode));
                 }
 
                 NodeIterator licenseIterator = model.listObjectsOfProperty(resource, DCTerms.license);
@@ -200,9 +200,8 @@ public class ModelMapper {
                             StructuredArguments.kv("dataSetUri", dataSetUri),
                             StructuredArguments.kv("license", licenseNode.toString()));
 
-                    Resource license = licenseNode.asResource();
                     distribution.setLicense(new License());
-                    distribution.getLicense().setUri(license.getURI());
+                    distribution.getLicense().setUri(getStringValue(licenseNode));
                     // TODO: 2/17/20 Add Name
                 }
 
@@ -213,7 +212,7 @@ public class ModelMapper {
                             StructuredArguments.kv("dataSetUri", dataSetUri),
                             StructuredArguments.kv("accessUrl", accessUrlNode.toString()));
 
-                    distribution.setAccessUrl(accessUrlNode.asResource().getURI());
+                    distribution.setAccessUrl(getStringValue(accessUrlNode));
                 }
 
                 NodeIterator downloadUrlIterator = model.listObjectsOfProperty(resource, DCAT.downloadURL);
@@ -223,7 +222,7 @@ public class ModelMapper {
                             StructuredArguments.kv("dataSetUri", dataSetUri),
                             StructuredArguments.kv("downloadUrl", downloadUrlNode.toString()));
 
-                    distribution.setDownloadUrl(downloadUrlNode.asResource().getURI());
+                    distribution.setDownloadUrl(getStringValue(downloadUrlNode));
                 }
 
                 NodeIterator formatIterator = model.listObjectsOfProperty(resource, DCTerms.format);
@@ -234,7 +233,7 @@ public class ModelMapper {
                             StructuredArguments.kv("format", formatNode.toString()));
 
                     if (formatNode.isLiteral())
-                        distribution.setFormat(formatNode.asLiteral().getString());
+                        distribution.setFormat(getStringValue(formatNode));
                 }
 
                 NodeIterator byteSizeIterator = model.listObjectsOfProperty(resource, DCAT.byteSize);
@@ -251,11 +250,13 @@ public class ModelMapper {
                     if (distribution.getRights() == null)
                         distribution.setRights(new ArrayList<>());
                     RDFNode rightsNode = rightsIterator.nextNode();
-                    log.trace("setDistributions, {}, {}",
-                            StructuredArguments.kv("dataSetUri", dataSetUri),
-                            StructuredArguments.kv("rights", rightsNode.toString()));
+                    if (!rightsNode.isAnon()) {
+                        log.trace("setDistributions, {}, {}",
+                                StructuredArguments.kv("dataSetUri", dataSetUri),
+                                StructuredArguments.kv("rights", rightsNode.toString()));
 
-                    distribution.getRights().add(rightsNode.asLiteral().getString());
+                        distribution.getRights().add(getStringValue(rightsNode));
+                    }
                 }
 
                 log.trace("setDistributions, {}, {}",
@@ -334,6 +335,10 @@ public class ModelMapper {
             NodeIterator addressIterator = model.listObjectsOfProperty(resource, VCARD4.hasAddress);
             if (addressIterator.hasNext()) {
                 RDFNode hasAddressNode = addressIterator.nextNode();
+                if (!hasAddressNode.isResource()) {
+                    log.trace("hasAddress node is not a resource");
+                    return null;
+                }
                 log.trace("getAddress, {}",
                         StructuredArguments.kv("hasAddress", hasAddressNode.toString()));
                 Resource addressResource = hasAddressNode.asResource();
@@ -358,6 +363,10 @@ public class ModelMapper {
             NodeIterator phoneIterator = model.listObjectsOfProperty(resource, VCARD4.hasTelephone);
             if (phoneIterator.hasNext()) {
                 RDFNode node = phoneIterator.nextNode();
+                if (!node.isResource()) {
+                    log.trace("hasTelephone node is not resource");
+                    return null;
+                }
                 log.trace("getPhoneNumber, {}",
                         StructuredArguments.kv("hasTelephone", node.toString()));
 
@@ -457,7 +466,7 @@ public class ModelMapper {
                     log.trace("setPublisher, {}, {}",
                             StructuredArguments.kv("dataSetUri", dataSetUri),
                             StructuredArguments.kv("mbox", mboxNode.toString()));
-                    dataSet.getPublisher().setEmail(mboxNode.asResource().getURI());
+                    dataSet.getPublisher().setEmail(getStringValue(mboxNode));
                 }
                 NodeIterator homePageIterator = model.listObjectsOfProperty(resource, FOAF.homepage);
                 if (homePageIterator.hasNext()) {
@@ -465,7 +474,7 @@ public class ModelMapper {
                     log.trace("setPublisher, {}, {}",
                             StructuredArguments.kv("dataSetUri", dataSetUri),
                             StructuredArguments.kv("homepage", homePageNode.toString()));
-                    dataSet.getPublisher().setWebsite(homePageNode.asResource().getURI()); // TODO: 2/17/20 asResource or asLiteral
+                    dataSet.getPublisher().setWebsite(getStringValue(homePageNode));
                 }
             }
         } catch (Exception e) {
@@ -520,7 +529,7 @@ public class ModelMapper {
                         StructuredArguments.kv("theme", node.toString()));
                 if (dataSet.getThemes() == null)
                     dataSet.setThemes(new ArrayList<>());
-                dataSet.getThemes().add(node.asResource().getURI());
+                dataSet.getThemes().add(getStringValue(node));
             } catch (NoSuchElementException e) {
                 log.error("", e);
             }
@@ -539,7 +548,7 @@ public class ModelMapper {
                         StructuredArguments.kv("dataSetUri", dataSetUri),
                         StructuredArguments.kv("license", node.toString()));
                 License license = new License();
-                license.setUri(node.asResource().getURI());
+                license.setUri(getStringValue(node));
                 // TODO: 2/17/20 Name
                 if (dataSet.getLicenses() == null)
                     dataSet.setLicenses(new ArrayList<>());
@@ -559,7 +568,7 @@ public class ModelMapper {
                 log.trace("setModified, {}, {}",
                         StructuredArguments.kv("dataSetUri", dataSetUri),
                         StructuredArguments.kv("modified", node.toString()));
-                dataSet.setModified(node.asLiteral().getString());
+                dataSet.setModified(getStringValue(node));
             }
         } catch (Exception e) {
             log.error("", e);
@@ -576,7 +585,7 @@ public class ModelMapper {
                 log.trace("setIssued, {}, {}",
                         StructuredArguments.kv("dataSetUri", dataSetUri),
                         StructuredArguments.kv("issued", node.toString()));
-                dataSet.setIssued(node.asLiteral().getString());
+                dataSet.setIssued(getStringValue(node));
             }
         } catch (Exception e) {
             log.error("", e);
@@ -620,9 +629,7 @@ public class ModelMapper {
                 log.trace("setLanguagePage, {}, {}",
                         StructuredArguments.kv("dataSetUri", dataSetUri),
                         StructuredArguments.kv("language", node.toString()));
-                dataSet.setLanguage(node.isLiteral() ?
-                        node.asLiteral().getString() :
-                        node.asResource().getURI());
+                dataSet.setLanguage(getStringValue(node));
             }
         } catch (NoSuchElementException e) {
             log.error("", e);
@@ -639,7 +646,7 @@ public class ModelMapper {
                 log.trace("setLandingPage, {}, {}",
                         StructuredArguments.kv("dataSetUri", dataSetUri),
                         StructuredArguments.kv("landingPage", node.toString()));
-                dataSet.setLandingPage(node.isLiteral() ? node.asLiteral().getString() : node.asResource().getURI());
+                dataSet.setLandingPage(getStringValue(node));
             }
         } catch (NoSuchElementException e) {
             log.error("", e);
@@ -717,7 +724,7 @@ public class ModelMapper {
                 log.trace("setOriginalUrls, {}, {}",
                         StructuredArguments.kv("dataSetUri", dataSetUri),
                         StructuredArguments.kv("originalUrl", node.toString()));
-                dataSet.getOriginalUrls().add(node.asResource().getURI());
+                dataSet.getOriginalUrls().add(getStringValue(node));
             } catch (NoSuchElementException ex) {
                 log.error("", ex);
             }
@@ -736,5 +743,15 @@ public class ModelMapper {
         }
         log.trace("getDataSetUri returned: {}", StructuredArguments.kv("dataSetUri", dataSetUri));
         return dataSetUri;
+    }
+
+    private static String getStringValue(RDFNode node) {
+        try {
+            if (node.isLiteral()) return node.asLiteral().getString();
+            if (node.isResource()) return node.asResource().getURI();
+        } catch (Exception e) {
+            log.error("", e);
+        }
+        return null;
     }
 }
