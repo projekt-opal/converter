@@ -12,6 +12,7 @@ import org.apache.jena.vocabulary.RDF;
 import org.dice_research.opal.common.utilities.ModelSerialization;
 import org.dice_research.opal.common.vocabulary.Opal;
 import org.diceresearch.elasticsearchwriter.entity.DataSet;
+import org.diceresearch.elasticsearchwriter.service.ThemeCleaner;
 import org.diceresearch.elasticsearchwriter.utility.ElasticSearchWriter;
 import org.diceresearch.elasticsearchwriter.utility.ModelMapper;
 import org.elasticsearch.action.index.IndexRequest;
@@ -40,6 +41,7 @@ public class ElasticSearchWriterImpl implements ElasticSearchWriter {
 
         try {
             logModel(model);
+            new ThemeCleaner().clean(model); //and array of cleaner may be used
             DataSet dataSet = ModelMapper.toDataset(model);
             Gson gson = new Gson();
             String json = gson.toJson(dataSet);

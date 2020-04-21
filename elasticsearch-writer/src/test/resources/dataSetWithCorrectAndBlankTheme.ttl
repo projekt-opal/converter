@@ -1,0 +1,55 @@
+<http://geoportal.cuzk.cz/geoprohlizec/?wmcid=502>
+        a       <http://xmlns.com/foaf/0.1/Document> .
+
+<http://geoportal.cuzk.cz/UKAZKOVA_DATA/SM5_RASTR_NOVA.zip>
+        a       <http://xmlns.com/foaf/0.1/Document> .
+
+<http://www.opengis.net/def/crs/EPSG/0/32633>
+        <http://purl.org/dc/terms/type>
+                <http://inspire.ec.europa.eu/metadata-codelist/SpatialReferenceSystem> .
+
+<http://www.opengis.net/def/crs/EPSG/0/5514>
+        <http://purl.org/dc/terms/type>
+                <http://inspire.ec.europa.eu/metadata-codelist/SpatialReferenceSystem> .
+
+<https://europeandataportal.eu/set/data/cz-cuzk-sm5-rb-blov81>
+        a       <http://www.w3.org/ns/dcat#Dataset> ;
+        <http://www.w3.org/2000/01/rdf-schema#comment>
+                "\"Spatial resolution (equivalent scale): 1:5000\"@en" ;
+        <http://purl.org/dc/terms/accrualPeriodicity>
+                <http://publications.europa.eu/resource/authority/frequency/ANNUAL_2> ;
+        <http://purl.org/dc/terms/conformsTo>
+                <http://www.opengis.net/def/crs/EPSG/0/5514> , <http://www.opengis.net/def/crs/EPSG/0/32633> ;
+        <http://purl.org/dc/terms/description>
+                "\"The product represents a new design of the State Map 1:5,000 in raster form, whose advantages are recency and colour processing. The map contains planimetry based on cadastral map, altimetry adopted from the altimetry part of ZABAGED and map lettering based on database of geographic names Geonames and abbreviations of feature type signification coming up from attributes of selected ZABAGED features. The cartographic visualisation is solved automatically without manual works of a cartographer. This new design of the State Map 1:5,000 is repeatedly generated two times a year on the part of the Czech territory where the vector form of cadastral map is available. Therefore, part of export units (map sheets of SM 5) has not a full coverage (price of such export unit is then proportionally reduced).\"@en" , "\"Produkt představuje novou podobu Státní mapy 1:5 000 v rastrové formě, jejíž předností je aktuálnost a barevné zpracování. Mapa obsahuje polohopis, jehož podkladem je katastrální mapa, výškopis převzatý z výškopisné části ZABAGED a popis sestávající z geografických jmen databáze Geonames a zkratek druhového označení vycházejících z atributů vybraných typů objektů ZABAGED. Kartografická vizualizace je řešena automatizovaně bez ručních zásahů kartografa. Tato nová podoba Státní mapy 1:5 000 je opakovaně generována dvakrát ročně pouze na části území ČR, kde je dostupná vektorová forma katastrální mapy. Z tohoto důvodu má také část výdejních jednotek (mapových listů SM 5) neúplné pokrytí (cena takové výdejní jednotky je pak úměrně snížena).\"@cs" ;
+        <http://purl.org/dc/terms/identifier>
+                "\"ČÚZK/63126\"^^http://www.w3.org/2001/XMLSchema#string" , "\"ČÚZK/CZ-00025712-CUZK_SM5_RB-BLOV81\"^^http://www.w3.org/2001/XMLSchema#string" ;
+        <http://purl.org/dc/terms/isPartOf>
+                <614f006ad7cd59c8d0da685fce6a65e7> ;
+        <http://purl.org/dc/terms/language>
+                <http://publications.europa.eu/resource/authority/language/CZE> ;
+        <http://purl.org/dc/terms/provenance>
+                <fcd9f030eaa716f9efbbe7ebd4bd86e3> ;
+        <http://purl.org/dc/terms/spatial>
+                <38fbd681652487232661d7d7216533e9> ;
+        <http://purl.org/dc/terms/subject>
+                <http://inspire.ec.europa.eu/metadata-codelist/TopicCategory/planningCadastre> ;
+        <http://purl.org/dc/terms/title>
+                "\"Rastrová data nové podoby Státní mapy  1:5 000 - Blovice 8-1\"@cs" , "\"State map 1:5 000 new form raster data - Blovice 8-1\"@en" ;
+        <http://purl.org/dc/terms/type>
+                <http://inspire.ec.europa.eu/metadata-codelist/ResourceType/dataset> ;
+        <http://www.w3.org/ns/dcat#keyword>
+                "\"Využití území\"@cs" , "\"Krajinný pokryv\"@cs" , "\"Správní jednotky\"@cs" , "\"Budovy\"@cs" ;
+        <http://www.w3.org/ns/dcat#landingPage>
+                <http://geoportal.cuzk.cz/geoprohlizec> , <http://geoportal.cuzk.cz/UKAZKOVA_DATA/SM5_RASTR_NOVA.zip> , <http://geoportal.cuzk.cz/geoprohlizec/?wmcid=502> ;
+        <http://www.w3.org/ns/dcat#theme>
+                <9e50747899be5037de38d8e42bd1d1fa> , <526a5dc0f7b43c664efdb27436c1339f> , <ad0c35a69c762294d3ccc8c031788b1c> , <626b9c2d6e079c35d8ed67e32e5dcbf6> , <2152993222659294c3f3ccfa4b91c9fc> , <f8689051ee8722faa3760dbe4a85a96c> , <d9bc52a9ef41266cd53dd71f25e2a90b> , <746af9c563f92ae73ce575384c93b6d1> , <http://inspire.ec.europa.eu/theme/gn> , <cd2c8ace1926325642a88423f35a21a1> , <http://publications.europa.eu/resource/authority/data-theme/REGI> , <93e5668bc43bf74417a1e7c2ff17a215> ;
+        <http://www.w3.org/ns/prov#qualifiedAttribution>
+                <c77305cb6bbbff5bd0a017ace2c3eb3b> ;
+        <http://www.w3.org/ns/prov#wasUsedBy>
+                <d6b4b62d42cda33f87e014aa286f289f> ;
+        <http://xmlns.com/foaf/0.1/isPrimaryTopicOf>
+                <26e887c905c3f3d421b2600ae55d8465> .
+
+<http://geoportal.cuzk.cz/geoprohlizec>
+        a       <http://xmlns.com/foaf/0.1/Document> .

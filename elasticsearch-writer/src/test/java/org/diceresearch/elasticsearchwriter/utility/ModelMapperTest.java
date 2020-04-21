@@ -6,12 +6,12 @@ import org.apache.jena.rdf.model.ModelFactory;
 import org.diceresearch.elasticsearchwriter.entity.DataSet;
 import org.junit.jupiter.api.Test;
 
-class ModelMapperTest {
+public class ModelMapperTest {
 
     @Test
     void toDataset() {
         Model model = ModelFactory.createDefaultModel();
-        model.read("test/model.ttl");
+        model.read("model.ttl");
         DataSet dataSet = ModelMapper.toDataset(model);
         Gson gson = new Gson();
         String s = gson.toJson(dataSet);
