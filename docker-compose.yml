@@ -86,13 +86,10 @@ services:
       - H2_DB_PATH=/db
     depends_on:
       - rabbitmq
-      - logstash
       - discovery-server
       - config-server
   opal-confirm-conversion-service:
     build: opal-confirm-conversion-service
-#    volumes:
-#      - logvolume1:/var/log/converter/
     ports:
       - 8002
     environment:
@@ -104,14 +101,10 @@ services:
       - CONFIG_SERVER_URL=http://config-server:8888
     depends_on:
       - rabbitmq
-      - logstash
       - discovery-server
       - config-server
-      - dataset-fetcher
   quality-metrics-service:
     build: quality-metrics-service
-#    volumes:
-#      - logvolume1:/var/log/converter/
     ports:
       - 8003
     environment:
@@ -123,15 +116,10 @@ services:
       - CONFIG_SERVER_URL=http://config-server:8888
     depends_on:
       - rabbitmq
-      - logstash
       - discovery-server
       - config-server
-      - dataset-fetcher
-      - opal-confirm-conversion-service
   triplestore-writer:
     build: triplestore-writer
-#    volumes:
-#      - logvolume1:/var/log/converter/
     ports:
       - 8004
     environment:
@@ -148,16 +136,10 @@ services:
       - MAX_CONCURRENCY_WRITER=3
     depends_on:
       - rabbitmq
-      - logstash
       - discovery-server
       - config-server
-      - dataset-fetcher
-      - opal-confirm-conversion-service
-      - quality-metrics-service
   elasticsearch-writer:
     build: elasticsearch-writer
-#    volumes:
-#      - logvolume1:/var/log/converter/
     ports:
       - 8005
     environment:
@@ -171,17 +153,10 @@ services:
       - OPAL_ELASTICSEARCH_PORT=9200
     depends_on:
       - rabbitmq
-      - logstash
       - discovery-server
       - config-server
-      - dataset-fetcher
-      - opal-confirm-conversion-service
-      - quality-metrics-service
 volumes:
   rabbitmqdata:
   esdata01:
   eslog:
   h2data:
-#  logvolume1:
-#  logvolume2:
-#  logvolume3:
