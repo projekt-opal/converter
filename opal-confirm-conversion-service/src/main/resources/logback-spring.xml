@@ -16,7 +16,7 @@
         </encoder>
     </appender>
 
-    <springProfile name="!test">
+    <springProfile name="prod">
         <appender name="AMQP"
                   class="org.springframework.amqp.rabbit.logback.AmqpAppender">
             <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
@@ -57,19 +57,19 @@
 
     <root level="INFO">
         <appender-ref ref="CONSOLE"/>
-        <!--        <appender-ref ref="FILE"/>-->
-        <springProfile name="!test"><appender-ref ref="AMQP"/></springProfile>
+        <springProfile name="!prod"> <appender-ref ref="FILE"/> </springProfile>
+        <springProfile name="prod"><appender-ref ref="AMQP"/></springProfile>
     </root>
 
     <logger name="org.apache.jena.riot" additivity="false" level="ERROR">
         <appender-ref ref="CONSOLE"/>
-        <!--        <appender-ref ref="FILE"/>-->
-        <springProfile name="!test"><appender-ref ref="AMQP"/></springProfile>
+        <springProfile name="!prod"> <appender-ref ref="FILE"/> </springProfile>
+        <springProfile name="prod"><appender-ref ref="AMQP"/></springProfile>
     </logger>
     <logger name="org.apache.jena.sparql" additivity="false" level="ERROR">
         <appender-ref ref="CONSOLE"/>
-        <!--        <appender-ref ref="FILE"/>-->
-        <springProfile name="!test"><appender-ref ref="AMQP"/></springProfile>
+        <springProfile name="!prod"> <appender-ref ref="FILE"/> </springProfile>
+        <springProfile name="prod"><appender-ref ref="AMQP"/></springProfile>
     </logger>
 
 </configuration>
