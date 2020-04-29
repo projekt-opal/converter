@@ -2,6 +2,7 @@ package org.diceresearch.datasetfilefetcher.web;
 
 import org.diceresearch.datasetfilefetcher.utility.FileFetcher;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -17,6 +18,9 @@ public class ServiceController {
     private final FileFetcher fileFetcher;
     private final ExecutorService service = Executors.newSingleThreadExecutor();
 
+    @Value("${FOLDER_PATH}")
+    private String folderPath;
+
     @Autowired
     public ServiceController(FileFetcher fileFetcher) {
         this.fileFetcher = fileFetcher;
@@ -24,8 +28,7 @@ public class ServiceController {
 
     @GetMapping("/convert")
     @ResponseStatus(HttpStatus.OK)
-    public void convert(@RequestParam(name = "low") final String low,
-                          @RequestParam(name = "folderPath") final String folderPath) {
+    public void convert(@RequestParam(name = "low") final String low) {
         Runnable runnable = () -> {
             int low_i = Integer.parseInt(low);
             fileFetcher.fetch(low_i, folderPath);

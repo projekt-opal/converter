@@ -53,8 +53,7 @@ public class FileFetcher {
                     model.read(file.toString(), "NT");
                     model.add(portalResource, RDF.type, DCAT.Catalog);
                     byte[] serialize = ModelSerialization.serialize(model);
-                    System.out.println(low + ":" + model.size());
-//                        sourceWithDynamicDestination.sendMessage(serialize, outputQueue);
+                    sourceWithDynamicDestination.sendMessage(serialize, outputQueue);
                 } catch (Exception e) {
                     logger.error("", e);
                 }
@@ -72,7 +71,4 @@ public class FileFetcher {
         this.canceled = true;
     }
 
-    public boolean isCanceled() {
-        return canceled;
-    }
 }
