@@ -9,9 +9,9 @@
     </parent>
     <groupId>org.diceresearch</groupId>
     <artifactId>data-cleaner-service</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0</version>
     <name>data-cleaner-service</name>
-    <description>Removes empty blank nodes and keeps opal vocabulary RDFs</description>
+    <description>Removes empty blank nodes, empty literals and keeps opal vocabulary RDFs</description>
 
     <properties>
         <java.version>1.8</java.version>

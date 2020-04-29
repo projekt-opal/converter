@@ -27,7 +27,7 @@ public class DataCleaner {
             return bytes;
         }
         try {
-            Catfish catfish = new Catfish();
+            Catfish catfish = new Catfish(null);
             ResIterator resIterator = model.listResourcesWithProperty(RDF.type, DCAT.Dataset);
             if (resIterator.hasNext()) {
                 Resource dataSet = resIterator.nextResource();

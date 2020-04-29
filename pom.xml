@@ -51,6 +51,7 @@
 		<module>elasticsearch-writer</module>
 		<module>config-server</module>
 		<module>dataset-file-fetcher</module>
+		<module>data-cleaner-service</module>
 	</modules>
 
 </project>

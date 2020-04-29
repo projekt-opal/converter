@@ -122,6 +122,21 @@ services:
       - rabbitmq
       - discovery-server
       - config-server
+  data-cleaner-service:
+    build: data-cleaner-service
+    ports:
+      - 8006:8006
+    environment:
+      - RABBITMQ_ADDRESS=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USERNAME=${RABBITMQ_USERNAME}
+      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
+      - EUREKA_URL=http://discovery-server:8761/eureka/
+      - CONFIG_SERVER_URL=http://config-server:8888
+    depends_on:
+      - rabbitmq
+      - discovery-server
+      - config-server
   quality-metrics-service:
     build: quality-metrics-service
     ports:
