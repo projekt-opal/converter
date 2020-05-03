@@ -3,14 +3,12 @@ spring:
     name: elasticsearch-writer
   cloud:
     config:
-      discovery:
-        enabled: true
-        service-id: config-server
       retry:
         initialInterval: 2000
         multiplier: 1.5
         maxInterval: 60000
         maxAttempts: 100
+      uri: ${CONFIG_SERVER_URL:http://localhost:8888}
 
 eureka:
   client:
@@ -18,3 +16,9 @@ eureka:
     register-with-eureka: true
     serviceUrl:
       defaultZone: ${EUREKA_URL:http://localhost:8761/eureka/}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"

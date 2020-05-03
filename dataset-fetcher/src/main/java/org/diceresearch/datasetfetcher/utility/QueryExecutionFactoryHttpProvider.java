@@ -1,5 +1,6 @@
 package org.diceresearch.datasetfetcher.utility;
 
+import net.logstash.logback.argument.StructuredArguments;
 import org.aksw.jena_sparql_api.core.QueryExecutionFactory;
 import org.aksw.jena_sparql_api.http.QueryExecutionFactoryHttp;
 import org.aksw.jena_sparql_api.retry.core.QueryExecutionFactoryRetry;
@@ -16,8 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
-
-import static net.logstash.logback.argument.StructuredArguments.kv;
 
 @Service
 public class QueryExecutionFactoryHttpProvider implements CredentialsProvider {
@@ -40,7 +39,7 @@ public class QueryExecutionFactoryHttpProvider implements CredentialsProvider {
         String url = portal.getQueryAddress();
         String username = portal.getUsername();
         String password = portal.getPassword();
-        logger.info("TripleStore info: {} {}", kv("URL", url), kv("username", username));
+        logger.info("TripleStore info: {} {}", StructuredArguments.kv("URL", url), StructuredArguments.kv("username", username));
 
         HttpClientBuilder clientBuilder = HttpClientBuilder.create();
         clientBuilder.setDefaultCredentialsProvider(this);

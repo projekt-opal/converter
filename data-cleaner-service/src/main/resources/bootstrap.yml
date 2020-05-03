@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: data-cleaner-service
+  cloud:
+    config:
+      retry:
+        initialInterval: 2000
+        multiplier: 1.5
+        maxInterval: 60000
+        maxAttempts: 100
+      uri: ${CONFIG_SERVER_URL:http://localhost:8888}
+
+eureka:
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    serviceUrl:
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka/}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"

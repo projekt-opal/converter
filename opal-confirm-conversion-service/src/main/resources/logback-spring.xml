@@ -16,60 +16,60 @@
         </encoder>
     </appender>
 
-
-    <appender name="AMQP"
-              class="org.springframework.amqp.rabbit.logback.AmqpAppender">
-        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
-            <providers>
-                <mdc/>
-                <context/>
-                <logLevel/>
-                <loggerName/>
-                <pattern>
+    <springProfile name="prod">
+        <appender name="AMQP"
+                  class="org.springframework.amqp.rabbit.logback.AmqpAppender">
+            <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+                <providers>
+                    <mdc/>
+                    <context/>
+                    <logLevel/>
+                    <loggerName/>
                     <pattern>
-                        {
-                        "appName": "opal-confirm-conversion-service"
-                        }
+                        <pattern>
+                            {
+                            "appName": "opal-confirm-conversion-service"
+                            }
+                        </pattern>
                     </pattern>
-                </pattern>
-                <threadName/>
-                <message/>
-                <logstashMarkers/>
-                <stackTrace/>
-                <arguments/>
-            </providers>
-        </encoder>
-        <host>${RABBITMQ_ADDRESS}</host>
-        <port>${RABBITMQ_PORT}</port>
-        <username>${RABBITMQ_USERNAME}</username>
-        <password>${RABBITMQ_PASSWORD}</password>
-        <applicationId>opal-confirm-conversion-service</applicationId>
-        <routingKeyPattern>#</routingKeyPattern>
-        <declareExchange>true</declareExchange>
-        <exchangeType>direct</exchangeType>
-        <exchangeName>ex_logstash</exchangeName>
-        <generateId>true</generateId>
-        <charset>UTF-8</charset>
-        <durable>true</durable>
-        <deliveryMode>PERSISTENT</deliveryMode>
-    </appender>
-
+                    <threadName/>
+                    <message/>
+                    <logstashMarkers/>
+                    <stackTrace/>
+                    <arguments/>
+                </providers>
+            </encoder>
+            <host>${RABBITMQ_ADDRESS}</host>
+            <port>${RABBITMQ_PORT}</port>
+            <username>${RABBITMQ_USERNAME}</username>
+            <password>${RABBITMQ_PASSWORD}</password>
+            <applicationId>opal-confirm-conversion-service</applicationId>
+            <routingKeyPattern>#</routingKeyPattern>
+            <declareExchange>true</declareExchange>
+            <exchangeType>direct</exchangeType>
+            <exchangeName>ex_logstash</exchangeName>
+            <generateId>true</generateId>
+            <charset>UTF-8</charset>
+            <durable>true</durable>
+            <deliveryMode>PERSISTENT</deliveryMode>
+        </appender>
+    </springProfile>
 
     <root level="INFO">
         <appender-ref ref="CONSOLE"/>
-        <appender-ref ref="FILE"/>
-        <appender-ref ref="AMQP"/>
+        <springProfile name="!prod"> <appender-ref ref="FILE"/> </springProfile>
+        <springProfile name="prod"><appender-ref ref="AMQP"/></springProfile>
     </root>
 
     <logger name="org.apache.jena.riot" additivity="false" level="ERROR">
-        <appender-ref ref="CONSOLE" />
-        <appender-ref ref="FILE" />
-        <appender-ref ref="AMQP"/>
+        <appender-ref ref="CONSOLE"/>
+        <springProfile name="!prod"> <appender-ref ref="FILE"/> </springProfile>
+        <springProfile name="prod"><appender-ref ref="AMQP"/></springProfile>
     </logger>
     <logger name="org.apache.jena.sparql" additivity="false" level="ERROR">
-        <appender-ref ref="CONSOLE" />
-        <appender-ref ref="FILE" />
-        <appender-ref ref="AMQP"/>
+        <appender-ref ref="CONSOLE"/>
+        <springProfile name="!prod"> <appender-ref ref="FILE"/> </springProfile>
+        <springProfile name="prod"><appender-ref ref="AMQP"/></springProfile>
     </logger>
 
 </configuration>

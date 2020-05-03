@@ -32,18 +32,18 @@ public class DBHelper {
     public void initDB() {
         Iterable<Portal> portals = portalRepository.findAll();
         if (!portals.iterator().hasNext()) {
-            portalRepository.save(new Portal().setName("mcloud").setLastNotFetched(0).setHigh(-1)
-                    .setQueryAddress(tripleStoreURL+"/mcloud/query")
-                    .setUsername(tripleStoreUsername).setPassword(tripleStorePassword)
-                    .setOutputQueue("dataset-graph").setWorkingStatus(WorkingStatus.IDLE).setStep(100));
-            portalRepository.save(new Portal().setName("govdata").setLastNotFetched(0).setHigh(-1)
-                    .setQueryAddress(tripleStoreURL+"/govdata/query")
-                    .setUsername(tripleStoreUsername).setPassword(tripleStorePassword)
-                    .setOutputQueue("dataset-graph").setWorkingStatus(WorkingStatus.IDLE).setStep(100));
-            portalRepository.save(new Portal().setName("europeandataportal").setLastNotFetched(0).setHigh(-1)
-                    .setQueryAddress(tripleStoreURL+"/europeandataportal/query")
-                    .setUsername(tripleStoreUsername).setPassword(tripleStorePassword)
-                    .setOutputQueue("dataset-graph").setWorkingStatus(WorkingStatus.IDLE).setStep(100));
+            portalRepository.save(Portal.builder().name("mcloud").lastNotFetched(0).high(-1)
+                    .queryAddress(tripleStoreURL+"mcloud/query")
+                    .username(tripleStoreUsername).password(tripleStorePassword)
+                    .outputQueue("dataset-graph").workingStatus(WorkingStatus.IDLE).step(100).build());
+            portalRepository.save(Portal.builder().name("govdata").lastNotFetched(0).high(-1)
+                    .queryAddress(tripleStoreURL+"govdata/query")
+                    .username(tripleStoreUsername).password(tripleStorePassword)
+                    .outputQueue("dataset-graph").workingStatus(WorkingStatus.IDLE).step(100).build());
+            portalRepository.save(Portal.builder().name("europeandataportal").lastNotFetched(0).high(-1)
+                    .queryAddress(tripleStoreURL+"europeandataportal/query")
+                    .username(tripleStoreUsername).password(tripleStorePassword)
+                    .outputQueue("dataset-graph").workingStatus(WorkingStatus.IDLE).step(100).build());
         }
     }
 }

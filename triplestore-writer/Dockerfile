@@ -1,5 +1,3 @@
 FROM openjdk:8
-COPY target/triplestore-writer-0.0.1.jar ./triplestore-writer.jar
-COPY run.sh /run.sh
-RUN ["chmod", "+x", "./run.sh"]
-ENTRYPOINT ["./run.sh"]
+COPY target/triplestore-writer-1.0.0.jar ./triplestore-writer.jar
+ENTRYPOINT ["java", "-jar", "-Dspring.profiles.active=prod", "./triplestore-writer.jar"]

@@ -4,7 +4,6 @@ Converter project refines metadata and transform it into 5-Star Linked Open Data
 ## How to use
 To build the project you must creat .env file and put the needed environment variables there. Then, by running run.sh file it will build and setup the project. 
 ```
-RABBITMQ_ADDRESS=
 RABBITMQ_PORT=
 RABBITMQ_USERNAME=
 RABBITMQ_PASSWORD=
@@ -14,6 +13,6 @@ CRAWLER_TRIPLESTORE_URL=
 OPAL_TRIPLESTORE_URL=
 OPAL_TRIPLESTORE_USERNAME=
 OPAL_TRIPLESTORE_PASSWORD=
-MYSQL_ROOT_PASSWORD=
+H2_DB_PASSWORD=
 ELASTICSEARCH_JAVA_OPTS=-Xms512m -Xmx512m
 ```

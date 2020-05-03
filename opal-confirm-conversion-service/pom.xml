@@ -5,10 +5,10 @@
     <parent>
         <groupId>org.dice-research</groupId>
         <artifactId>converter</artifactId>
-        <version>0.0.1</version>
+        <version>1.0.0</version>
     </parent>
     <artifactId>opal-confirm-conversion-service</artifactId>
-    <version>0.0.1</version>
+    <version>1.0.0</version>
     <name>opal-confirm-conversion-service</name>
     <description>unified vocabulary of all datasets' rdf to opal confirm defined vocabulary</description>
 
@@ -29,6 +29,10 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
@@ -70,7 +74,7 @@
         <dependency>
             <groupId>org.dice-research.opal</groupId>
             <artifactId>common</artifactId>
-            <version>[1,2)</version>
+            <version>1.1.4</version>
         </dependency>
     </dependencies>
 
