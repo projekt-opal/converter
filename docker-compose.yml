@@ -185,6 +185,7 @@ services:
       - CONFIG_SERVER_URL=http://config-server:8888
       - OPAL_ELASTICSEARCH_URL=opaldata.cs.upb.de
       - OPAL_ELASTICSEARCH_PORT=9200
+      - ES_INDEX=${ES_INDEX}
     depends_on:
       - rabbitmq
       - discovery-server
