@@ -21,6 +21,7 @@ import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -28,6 +29,9 @@ import org.springframework.stereotype.Component;
 public class ElasticSearchWriterImpl implements ElasticSearchWriter {
 
     private final RestHighLevelClient restHighLevelClient;
+
+    @Value("${ES_INDEX}")
+    private String index;
 
     @Autowired
     public ElasticSearchWriterImpl(RestHighLevelClient restHighLevelClient) {
@@ -46,7 +50,7 @@ public class ElasticSearchWriterImpl implements ElasticSearchWriter {
             Gson gson = new Gson();
             String json = gson.toJson(dataSet);
             log.info("json={}", json);
-            IndexRequest indexRequest = new IndexRequest("opal").source(json, XContentType.JSON);
+            IndexRequest indexRequest = new IndexRequest(index).source(json, XContentType.JSON);
             IndexResponse indexResponse = restHighLevelClient.index(indexRequest, RequestOptions.DEFAULT);
             log.debug("Elastic Writer: {}", indexResponse.toString());
         } catch (Exception ex) {
