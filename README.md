@@ -13,16 +13,22 @@ The converter integrates the following OPAL components:
 To build the project you must create a .env file and specify the required environment variables. Afterwards, by running the run.sh file it will build and setup the project. 
 
 ```
-RABBITMQ_PORT=
-RABBITMQ_USERNAME=
-RABBITMQ_PASSWORD=
+# Triplestore to read data
+CRAWLER_TRIPLESTORE_URL=
 CRAWLER_TRIPLESTORE_USERNAME=
 CRAWLER_TRIPLESTORE_PASSWORD=
-CRAWLER_TRIPLESTORE_URL=
+
+# Triplestore to write data
 OPAL_TRIPLESTORE_URL=
-OPAL_TRIPLESTORE_USERNAME=
+OPAL_TRIPLESTORE_USERNAME=admin
 OPAL_TRIPLESTORE_PASSWORD=
+
+# Free to choose
+RABBITMQ_USERNAME=
+RABBITMQ_PASSWORD=
 H2_DB_PASSWORD=
+
+# Elasticsearch configuration for logging
 ELASTICSEARCH_JAVA_OPTS=-Xms512m -Xmx512m
 ```
 
@@ -31,3 +37,4 @@ ELASTICSEARCH_JAVA_OPTS=-Xms512m -Xmx512m
 [Data Science Group (DICE)](https://dice-research.org/) at [Paderborn University](https://www.uni-paderborn.de/)
 
 This work has been supported by the German Federal Ministry of Transport and Digital Infrastructure (BMVI) in the project [Open Data Portal Germany (OPAL)](http://projekt-opal.de/) (funding code 19F2028A).
+
