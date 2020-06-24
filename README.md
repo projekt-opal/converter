@@ -30,6 +30,12 @@ H2_DB_PASSWORD=
 
 # Elasticsearch configuration for logging
 ELASTICSEARCH_JAVA_OPTS=-Xms512m -Xmx512m
+
+# address to all files that need to be converted such as /opal-data/edp_20-04-2020
+DATASET_FOLDER=
+
+#Elasticsearch index name such as opal_test
+ES_INDEX=
 ```
 
 ## Credits
