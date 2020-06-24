@@ -8,6 +8,9 @@ The converter integrates the following OPAL components:
 - [Civet](https://github.com/projekt-opal/civet) (quality-metrics-service)
 - [Metadata-Refinement](https://github.com/projekt-opal/metadata-refinement) (opal-confirm-conversion-service)
 
+![converter architecture](doc/converter-architecture.png)
+
+
 ## How to use
 
 To build the project you must create a .env file and specify the required environment variables. Afterwards, by running the run.sh file it will build and setup the project. 
