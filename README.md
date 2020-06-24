@@ -14,6 +14,8 @@ The converter integrates the following OPAL components:
 ## How to use
 
 To build the project you must create a .env file and specify the required environment variables. Afterwards, by running the run.sh file it will build and setup the project. 
+The configuration also includes the [converter-configuration](https://github.com/projekt-opal/converter-configuration) repository.
+For details, take a look into the [wiki](https://github.com/projekt-opal/converter/wiki).
 
 ```
 # Triplestore to read data
